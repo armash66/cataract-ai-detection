@@ -6,25 +6,10 @@ dataset/
 *.jpg
 *.jpeg
 *.png
-*.bmp
-*.tiff
 
-# model files
+# models
 *.pth
-*.h5
-*.onnx
 
-# python cache
+# python
 __pycache__/
-*.pyc
-
-# kaggle / cache
 .cache/
-.kaggle/
-
-# env / editor
-.env
-venv/
-.vscode/
-.DS_Store
-Thumbs.db
