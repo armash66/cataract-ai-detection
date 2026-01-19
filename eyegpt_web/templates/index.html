@@ -11,16 +11,63 @@
     <h1>👁️ EyeGPT</h1>
     <p class="subtitle">AI-based cataract screening from anterior eye images</p>
 
-    <form method="POST" enctype="multipart/form-data" class="upload-box">
-        <input type="file" name="image" required>
+    <!-- Upload -->
+    <h3>Upload Image (Recommended)</h3>
+    <form method="POST" enctype="multipart/form-data" id="uploadForm" class="upload-box">
+        <input type="file" name="image" accept="image/*" required id="fileInput">
         <button type="submit">Analyze Image</button>
     </form>
 
+    <!-- Camera -->
+    <h3>Camera Capture (⚠️ Not Recommended)</h3>
+
+    <div class="camera-warning">
+        <strong>Warning:</strong> Camera-based analysis is highly unreliable due to
+        glare, flash, auto-exposure, reflections, and distance issues.
+        <br><br>
+        <strong>Do NOT use camera results for screening.</strong>
+        This feature is for <em>demonstration only</em>.
+    </div>
+
+    <label class="acknowledge">
+        <input type="checkbox" id="ackCheckbox">
+        I understand camera results are unreliable
+    </label>
+
+    <br><br>
+
+    <button id="startCameraBtn" disabled>
+        Enable Camera (Demo Only)
+    </button>
+
+    <div id="cameraSection" style="display:none;">
+        <video id="video" autoplay></video>
+        <button id="captureBtn">Capture Image</button>
+        <canvas id="canvas" style="display:none;"></canvas>
+    </div>
+
+    <!-- Preview -->
+    <div id="previewSection" style="display:none;">
+        <h3>Preview</h3>
+        <img id="previewImage" class="preview-img">
+        <button id="submitPreviewBtn">Analyze Preview</button>
+    </div>
+
+    {% if error %}
+    <div class="camera-warning">
+        <strong>Image rejected:</strong> {{ error }}
+    </div>
+    {% endif %}
+
     {% if result %}
     <div class="result-card">
-        <h2>Result</h2>
-        <p><strong>Prediction:</strong> {{ result.prediction }}</p>
-        <p><strong>Confidence:</strong> {{ result.confidence }}%</p>
+        <span class="badge {{ 'danger' if result.prediction=='Cataract' else 'safe' }}">
+            {{ result.prediction }}
+        </span>
+
+        <p class="confidence">
+            Confidence: <strong>{{ result.confidence }}%</strong>
+        </p>
 
         <h3>EyeGPT Explanation</h3>
         <p class="explanation">{{ explanation }}</p>
@@ -33,10 +80,10 @@
     {% endif %}
 
     <p class="disclaimer">
-        ⚠️ This tool is for educational and research purposes only.
-        It is not a medical diagnostic system.
+        ⚠️ Educational & research use only. Not a medical diagnostic tool.
     </p>
 </div>
 
+<script src="{{ url_for('static', filename='camera.js') }}"></script>
 </body>
 </html>
