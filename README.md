@@ -73,11 +73,17 @@ eye-disease-detection/
 
 ## ⚙️ Installation
 1️⃣ Clone the repository
+```bash
 git clone <repository-url>
+```
+```bash
 cd eye-disease-detection
+```
 
 2️⃣ Install dependencies
+```bash
 pip install -r requirements.txt
+```
 
 ## 🧪 How to Run
 ### ▶️ Fundus Pipeline
@@ -118,15 +124,15 @@ This will generate a gradcam_result.png highlighting the image regions influenci
 
 ## 🧠 Model Details (Anterior Pipeline)
 
-Architecture: MobileNetV2
+* Architecture: MobileNetV2
 
-Pretraining: ImageNet
+* Pretraining: ImageNet
 
-Fine-tuning: Selective unfreezing of higher convolutional layers
+* Fine-tuning: Selective unfreezing of higher convolutional layers
 
-Loss Function: Cross-Entropy Loss
+* Loss Function: Cross-Entropy Loss
 
-Task: Binary classification (Cataract / Normal)
+* Task: Binary classification (Cataract / Normal)
 
 ## 🔮 EyeGPT (Planned Extension)
 
