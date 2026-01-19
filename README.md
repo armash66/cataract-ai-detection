@@ -1,74 +1,75 @@
 # 👁️ Cataract Detection System
 
-An AI-based system for **eye disease screening** using deep learning.  
-This repository contains **two independent pipelines** designed for different eye imaging modalities:
+An AI-based system for eye disease screening using deep learning.
+This repository contains two independent pipelines designed for different eye imaging modalities:
 
-1. **Fundus-based cataract detection** (clinical retinal images)  
-2. **Anterior eye cataract detection** (front-facing / smartphone images)
+Fundus-based cataract detection (clinical retinal images)
 
-The project demonstrates how **different medical image modalities require different preprocessing, modeling, and evaluation strategies**, and serves as a foundation for an interactive assistant called **EyeGPT**.
+Anterior eye cataract detection (front-facing / smartphone images)
 
----
+The project demonstrates how different medical image modalities require different preprocessing, modeling, and evaluation strategies, and serves as a foundation for an interactive assistant called EyeGPT.
 
 ## 🧩 Pipelines Included
-
 ### 1️⃣ Fundus Image Pipeline (Clinical)
 
-**Input:** Retinal fundus images  
-**Use case:** Clinical and hospital environments  
+Input: Retinal fundus images
+Use case: Clinical and hospital environments
 
-**Features:**
+Features:
+
 - Dataset preprocessing from clinical fundus datasets
+
 - CNN-based cataract detection
+
 - Model training and evaluation
+
 - Confusion matrix and performance metrics
+
 - Confidence-based predictions
 
-This pipeline focuses on **clinical-quality retinal images**, where cataract indicators are derived from fundus characteristics.
-
----
+This pipeline focuses on clinical-quality retinal images, where cataract indicators are derived from fundus characteristics.
 
 ### 2️⃣ Anterior Eye Pipeline (Front-Facing Images)
 
-**Input:** Anterior (front-facing) eye images  
-**Use case:** Accessible screening, smartphone or camera-based images  
+Input: Anterior (front-facing) eye images
+Use case: Accessible screening, smartphone or camera-based images
 
-**Features:**
+Features:
+
 - Binary cataract detection (Cataract vs Normal)
+
 - Fine-tuned MobileNetV2 (ImageNet pretrained)
+
 - Confidence-based predictions
+
 - Grad-CAM explainability to visualize model attention
+
 - Designed for real-world, non-clinical image conditions
 
-This pipeline emphasizes **accessibility and real-world usability**, making it suitable for future consumer-facing applications.
+This pipeline emphasizes accessibility and real-world usability, making it suitable for future consumer-facing applications.
 
----
-
-## 📁 Repository Structure
-
+📁 Repository Structure
 eye-disease-detection/
 ├── fundus_pipeline/
-│ ├── prepare_dataset.py
-│ ├── train_model.py
-│ ├── evaluate_model.py
-│ ├── predict_with_confidence.py
-│ └── visualize_data.py
+│   ├── prepare_dataset.py
+│   ├── train_model.py
+│   ├── evaluate_model.py
+│   ├── predict_with_confidence.py
+│   └── visualize_data.py
 │
 ├── anterior_pipeline/
-│ ├── dataset/
-│ │ ├── cataract/
-│ │ └── normal/
-│ ├── src/
-│ │ ├── prepare_dataset.py
-│ │ ├── train_model.py
-│ │ ├── predict.py
-│ │ └── gradcam.py
+│   ├── dataset/
+│   │   ├── cataract/
+│   │   └── normal/
+│   ├── src/
+│   │   ├── prepare_dataset.py
+│   │   ├── train_model.py
+│   │   ├── predict.py
+│   │   └── gradcam.py
 │
 ├── requirements.txt
 ├── .gitignore
 └── README.md
-
----
 
 ## ⚙️ Installation
 1️⃣ Clone the repository
@@ -78,23 +79,19 @@ cd eye-disease-detection
 2️⃣ Install dependencies
 pip install -r requirements.txt
 
-🧪 How to Run
-▶️ Fundus Pipeline
+## 🧪 How to Run
+### ▶️ Fundus Pipeline
 cd fundus_pipeline
 python prepare_dataset.py
 python train_model.py
 python evaluate_model.py
 python predict_with_confidence.py
 
-▶️ Anterior Eye Pipeline
+### ▶️ Anterior Eye Pipeline
 cd anterior_pipeline
-Prepare dataset
 python src/prepare_dataset.py
-Train fine-tuned model
 python src/train_model.py
-Run prediction
 python src/predict.py <path_to_image>
-Generate Grad-CAM heatmap
 python src/gradcam.py <path_to_image>
 
 This will generate a gradcam_result.png highlighting the image regions influencing the prediction.
