@@ -1,112 +1,54 @@
 body {
-    background-color: #f4f6f8;
     font-family: Arial, sans-serif;
-    margin: 0;
+    background: #f4f6f8;
 }
 
 .container {
-    max-width: 720px;
-    margin: 50px auto;
+    max-width: 760px;
+    margin: auto;
     background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    text-align: center;
+    padding: 30px;
 }
 
-.subtitle {
-    color: #666;
-    margin-bottom: 25px;
+.camera-warning {
+    background: #fff3cd;
+    padding: 10px;
 }
 
-.upload-box {
-    margin-bottom: 30px;
+.error-box {
+    background: #f8d7da;
+    padding: 10px;
 }
 
-button {
-    padding: 10px 20px;
-    background-color: #0077cc;
+.result-box {
+    background: #e9ecef;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.preview-img, .gradcam-img {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.ai-btn {
+    background: #4c6ef5;
     color: white;
+    padding: 10px 16px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
 }
 
-button:hover {
-    background-color: #005fa3;
-}
-
-video {
-    width: 100%;
-    margin-bottom: 10px;
-    border-radius: 8px;
-}
-
-.result-card {
-    margin-top: 30px;
-    text-align: left;
-}
-
-.badge {
-    display: inline-block;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: bold;
-    color: white;
-}
-
-.badge.safe {
-    background-color: #2e7d32;
-}
-
-.badge.danger {
-    background-color: #c62828;
-}
-
-.confidence {
-    margin: 10px 0;
-}
-
-.explanation {
-    background: #f1f3f5;
-    padding: 15px;
+.ai-response {
+    margin-top: 10px;
+    background: white;
+    padding: 12px;
     border-radius: 6px;
 }
 
-.gradcam-img {
-    width: 100%;
-    margin-top: 15px;
-    border-radius: 8px;
-}
-
 .disclaimer {
-    margin-top: 40px;
     font-size: 12px;
-    color: #999;
-}
-
-#startCameraBtn {
-    margin-bottom: 15px;
-}
-
-.preview-img {
-    width: 100%;
-    margin-top: 10px;
-    border-radius: 8px;
-    border: 2px solid #ddd;
-}
-
-.camera-warning {
-    background: #fff3cd;
-    border: 1px solid #ffeeba;
-    color: #856404;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    font-size: 14px;
-}
-
-.acknowledge {
-    font-size: 13px;
-    color: #444;
+    color: #666;
+    margin-top: 20px;
 }

@@ -9,40 +9,33 @@
 
 <div class="container">
     <h1>👁️ EyeGPT</h1>
-    <p class="subtitle">AI-based cataract screening from anterior eye images</p>
+    <p class="subtitle">AI-based cataract screening (educational use only)</p>
 
     <!-- Upload -->
     <h3>Upload Image (Recommended)</h3>
-    <form method="POST" enctype="multipart/form-data" id="uploadForm" class="upload-box">
-        <input type="file" name="image" accept="image/*" required id="fileInput">
+    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+        <input type="file" name="image" id="fileInput" required>
         <button type="submit">Analyze Image</button>
     </form>
 
     <!-- Camera -->
-    <h3>Camera Capture (⚠️ Not Recommended)</h3>
-
+    <h3>Camera Capture (⚠️ Demo Only)</h3>
     <div class="camera-warning">
-        <strong>Warning:</strong> Camera-based analysis is highly unreliable due to
-        glare, flash, auto-exposure, reflections, and distance issues.
-        <br><br>
-        <strong>Do NOT use camera results for screening.</strong>
-        This feature is for <em>demonstration only</em>.
+        Camera-based results are unreliable due to glare, flash, reflections, and exposure.
+        <br><strong>Do NOT rely on camera results.</strong>
     </div>
 
-    <label class="acknowledge">
+    <label>
         <input type="checkbox" id="ackCheckbox">
         I understand camera results are unreliable
     </label>
 
     <br><br>
-
-    <button id="startCameraBtn" disabled>
-        Enable Camera (Demo Only)
-    </button>
+    <button id="startCameraBtn" disabled>Enable Camera</button>
 
     <div id="cameraSection" style="display:none;">
         <video id="video" autoplay></video>
-        <button id="captureBtn">Capture Image</button>
+        <button id="captureBtn">Capture</button>
         <canvas id="canvas" style="display:none;"></canvas>
     </div>
 
@@ -54,30 +47,49 @@
     </div>
 
     {% if error %}
-    <div class="camera-warning">
-        <strong>Image rejected:</strong> {{ error }}
-    </div>
+    <div class="error-box">{{ error }}</div>
     {% endif %}
 
     {% if result %}
-    <div class="result-card">
-        <span class="badge {{ 'danger' if result.prediction=='Cataract' else 'safe' }}">
-            {{ result.prediction }}
-        </span>
+    <div class="result-box">
+        <h3>Result</h3>
+        <p><strong>{{ result.prediction }}</strong></p>
+        <p>Confidence: {{ result.confidence }}%</p>
 
-        <p class="confidence">
-            Confidence: <strong>{{ result.confidence }}%</strong>
-        </p>
+        <script>
+            window.lastResult = {
+                prediction: "{{ result.prediction }}",
+                confidence: "{{ result.confidence }}"
+            };
+        </script>
 
-        <h3>EyeGPT Explanation</h3>
-        <p class="explanation">{{ explanation }}</p>
+        <h3>
+            Grad-CAM Visualization
+            <button class="toggle-btn" onclick="toggleGradCam(this)">Show</button>
+        </h3>
 
-        {% if gradcam %}
-        <h3>Grad-CAM Visualization</h3>
-        <img src="{{ url_for('static', filename=gradcam) }}" class="gradcam-img">
-        {% endif %}
+        <img
+            id="gradcamImage"
+            src="{{ url_for('static', filename=gradcam) }}"
+            class="gradcam-img"
+            style="display:none;"
+        >
     </div>
     {% endif %}
+
+    <!-- CHATBOT ALWAYS VISIBLE -->
+    <hr>
+
+    <h3>💬 EyeGPT Assistant</h3>
+    <p style="color:#555;">
+        EyeGPT explains the screening result in simple, non-diagnostic language.
+    </p>
+
+    <button class="ai-btn" onclick="askEyeGPT()">Ask EyeGPT</button>
+
+    <div id="aiResponse" class="ai-response">
+        Upload and analyze an image to receive an explanation.
+    </div>
 
     <p class="disclaimer">
         ⚠️ Educational & research use only. Not a medical diagnostic tool.

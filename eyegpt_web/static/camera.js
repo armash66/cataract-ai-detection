@@ -21,8 +21,7 @@ startCameraBtn.addEventListener("click", () => {
             video.srcObject = stream;
             cameraSection.style.display = "block";
             startCameraBtn.style.display = "none";
-        })
-        .catch(() => alert("Camera access denied or unavailable."));
+        });
 });
 
 document.getElementById("captureBtn").addEventListener("click", () => {
@@ -31,7 +30,7 @@ document.getElementById("captureBtn").addEventListener("click", () => {
     canvas.getContext("2d").drawImage(video, 0, 0);
 
     canvas.toBlob(blob => {
-        const file = new File([blob], "camera_demo.png", { type: "image/png" });
+        const file = new File([blob], "camera.png", { type: "image/png" });
         const dt = new DataTransfer();
         dt.items.add(file);
         fileInput.files = dt.files;
@@ -46,3 +45,47 @@ document.getElementById("captureBtn").addEventListener("click", () => {
 document.getElementById("submitPreviewBtn").addEventListener("click", () => {
     uploadForm.submit();
 });
+
+/* -------- EyeGPT (RULE-BASED, INSTANT) -------- */
+
+function askEyeGPT() {
+    const box = document.getElementById("aiResponse");
+
+    if (!window.lastResult) {
+        box.innerHTML = "Please analyze an image first.";
+        return;
+    }
+
+    box.innerHTML = "Generating explanation...";
+
+    fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            result: window.lastResult
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        box.innerHTML = data.response.replace(/\n/g, "<br>");
+    })
+    .catch(() => {
+        box.innerHTML = "EyeGPT is unavailable.";
+    });
+}
+
+/* -------- Grad-CAM Toggle (FIXED) -------- */
+
+function toggleGradCam(button) {
+    const img = document.getElementById("gradcamImage");
+
+    if (!img) return;
+
+    if (img.style.display === "none") {
+        img.style.display = "block";
+        button.innerText = "Hide";
+    } else {
+        img.style.display = "none";
+        button.innerText = "Show";
+    }
+}

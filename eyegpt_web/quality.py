@@ -8,13 +8,16 @@ def check_image_quality(image_path):
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+    # Overexposure / flash
     if gray.mean() > 200:
-        return False, "Image is overexposed (flash / glare detected)."
+        return False, "Image is overexposed (flash or glare detected)."
 
+    # Glare detection
     white_ratio = (gray > 240).sum() / gray.size
     if white_ratio > 0.05:
-        return False, "Strong glare detected. Reduce reflections."
+        return False, "Strong glare detected. Reduce reflections and flash."
 
+    # Low contrast
     if gray.std() < 20:
         return False, "Low contrast image. Improve lighting and focus."
 
