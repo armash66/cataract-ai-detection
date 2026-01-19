@@ -72,10 +72,13 @@ eye-disease-detection/
 
 ## ⚙️ Installation
 
-1️⃣ Clone the repository  
+### 1️⃣ Clone the repository
+```bash
 git clone <repository-url>
 cd eye-disease-detection
 2️⃣ Install dependencies
+bash
+Copy code
 pip install -r requirements.txt
 🧪 How to Run
 ▶️ Fundus Pipeline
@@ -87,16 +90,33 @@ python train_model.py
 python evaluate_model.py
 python predict_with_confidence.py
 ▶️ Anterior Eye Pipeline
+bash
+Copy code
 cd anterior_pipeline
 Prepare dataset
+
+bash
+Copy code
 python src/prepare_dataset.py
 Train fine-tuned model
+
+bash
+Copy code
 python src/train_model.py
 Run prediction
+
+bash
+Copy code
 python src/predict.py <path_to_image>
 Generate Grad-CAM heatmap
+
+bash
+Copy code
 python src/gradcam.py <path_to_image>
 This will generate a gradcam_result.png highlighting the image regions influencing the prediction.
+
+yaml
+Copy code
 
 ## 🧠 Model Details (Anterior Pipeline)
 Architecture: MobileNetV2
