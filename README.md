@@ -50,43 +50,29 @@ This pipeline emphasizes accessibility and real-world usability, making it suita
 
 ## 📁 Repository Structure
 
+```bash
 eye-disease-detection/
-
 ├── fundus_pipeline/
-
-│   ├── prepare_dataset.py
-
-│   ├── train_model.py
-
-│   ├── evaluate_model.py
-
-│   ├── predict_with_confidence.py
-
-│   └── visualize_data.py
-
+│ ├── prepare_dataset.py
+│ ├── train_model.py
+│ ├── evaluate_model.py
+│ ├── predict_with_confidence.py
+│ └── visualize_data.py
+│
 ├── anterior_pipeline/
-
-│   ├── dataset/
-
-│   │   ├── cataract/
-
-│   │   └── normal/
-
-│   ├── src/
-
-│   │   ├── prepare_dataset.py
-
-│   │   ├── train_model.py
-
-│   │   ├── predict.py
-
-│   │   └── gradcam.py
-
+│ ├── dataset/
+│ │ ├── cataract/
+│ │ └── normal/
+│ ├── src/
+│ │ ├── prepare_dataset.py
+│ │ ├── train_model.py
+│ │ ├── predict.py
+│ │ └── gradcam.py
+│
 ├── requirements.txt
-
 ├── .gitignore
-
 └── README.md
+```
 
 ## ⚙️ Installation
 1️⃣ Clone the repository
