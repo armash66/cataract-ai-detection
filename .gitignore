@@ -1,0 +1,15 @@
+# datasets
+dataset/
+**/dataset/
+
+# images
+*.jpg
+*.jpeg
+*.png
+
+# models
+*.pth
+
+# python
+__pycache__/
+.cache/
