@@ -192,6 +192,4 @@ If you would like to:
 
 - fix bugs or improve documentation
 
-- Feel free to fork this repository, make your changes, and submit a pull request.
-
-- All contributions that improve the project’s quality, usability, or clarity are appreciated.
+Feel free to fork this repository, make your changes, and submit a pull request. All contributions that improve the project’s quality, usability, or clarity are appreciated.
