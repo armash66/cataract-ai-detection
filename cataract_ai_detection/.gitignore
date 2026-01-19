@@ -1,0 +1,30 @@
+# datasets
+dataset/
+**/dataset/
+
+# images
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.tiff
+
+# model files
+*.pth
+*.h5
+*.onnx
+
+# python cache
+__pycache__/
+*.pyc
+
+# kaggle / cache
+.cache/
+.kaggle/
+
+# env / editor
+.env
+venv/
+.vscode/
+.DS_Store
+Thumbs.db
