@@ -1,4 +1,4 @@
-# 👁️ Eye Disease Detection System
+# 👁️ Cataract Detection System
 
 An AI-based system for **eye disease screening** using deep learning.  
 This repository contains **two independent pipelines** designed for different eye imaging modalities:
