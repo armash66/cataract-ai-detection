@@ -115,10 +115,7 @@ Copy code
 python src/gradcam.py <path_to_image>
 This will generate a gradcam_result.png highlighting the image regions influencing the prediction.
 
-yaml
-Copy code
-
-## 🧠 Model Details (Anterior Pipeline)
+🧠 Model Details (Anterior Pipeline)
 Architecture: MobileNetV2
 
 Pretraining: ImageNet
@@ -129,7 +126,7 @@ Loss Function: Cross-Entropy Loss
 
 Task: Binary classification (Cataract / Normal)
 
-## 🔮 EyeGPT (Planned Extension)
+🔮 EyeGPT (Planned Extension)
 EyeGPT is a proposed interactive AI assistant that combines:
 
 Vision-based eye disease detection
@@ -148,7 +145,7 @@ Clear medical disclaimers and guidance
 
 EyeGPT is designed to improve accessibility, interpretability, and user trust in AI-assisted eye screening.
 
-## ⚠️ Disclaimer
+⚠️ Disclaimer
 This project is intended strictly for educational and research purposes.
 
 It is not a medical diagnostic tool
@@ -157,7 +154,7 @@ It does not replace professional ophthalmic evaluation
 
 Predictions should always be validated by a qualified medical professional
 
-## 📌 Author Notes
+📌 Author Notes
 This repository demonstrates:
 
 Modality-specific deep learning pipelines
@@ -168,17 +165,21 @@ Explainable AI using Grad-CAM
 
 A scalable foundation for AI-assisted healthcare applications
 
-## 🤝 Contributing
-
+🤝 Contributing
 Contributions are welcome!
 
 If you would like to:
-- improve model performance
-- add support for more eye diseases
-- enhance explainability or evaluation
-- help build the EyeGPT interface
-- fix bugs or improve documentation
 
-Feel free to **fork this repository**, make your changes, and submit a pull request.
+improve model performance
+
+add support for more eye diseases
+
+enhance explainability or evaluation
+
+help build the EyeGPT interface
+
+fix bugs or improve documentation
+
+Feel free to fork this repository, make your changes, and submit a pull request.
 
 All contributions that improve the project’s quality, usability, or clarity are appreciated.
