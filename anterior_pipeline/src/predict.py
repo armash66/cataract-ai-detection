@@ -9,7 +9,7 @@ import os
 # -----------------------
 # Config
 # -----------------------
-MODEL_PATH = "anterior_cataract_model.pth"
+MODEL_PATH = "anterior_cataract_model_finetuned.pth"
 IMAGE_SIZE = 224
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 

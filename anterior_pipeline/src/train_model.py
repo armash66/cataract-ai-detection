@@ -8,21 +8,22 @@ from sklearn.metrics import confusion_matrix, classification_report
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# -----------------------
-# Config
-# -----------------------
+# =========================
+# CONFIG
+# =========================
 DATASET_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dataset")
 BATCH_SIZE = 16
-EPOCHS = 5
-LR = 1e-4
+EPOCHS = 10              # increased epochs
+LR = 1e-5                # lower LR for fine-tuning
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# -----------------------
-# Transforms
-# -----------------------
+# =========================
+# TRANSFORMS (Anterior-eye aware)
+# =========================
 train_transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ColorJitter(brightness=0.3, contrast=0.3),
+    transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 2.0)),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize(
@@ -40,9 +41,9 @@ val_transform = transforms.Compose([
     )
 ])
 
-# -----------------------
-# Dataset
-# -----------------------
+# =========================
+# DATASET
+# =========================
 full_dataset = datasets.ImageFolder(DATASET_DIR, transform=train_transform)
 class_names = full_dataset.classes
 print("Classes:", class_names)
@@ -56,24 +57,33 @@ val_ds.dataset.transform = val_transform
 train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True)
 val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE)
 
-# -----------------------
-# Model (NEW API)
-# -----------------------
+# =========================
+# MODEL (MobileNetV2)
+# =========================
 weights = MobileNet_V2_Weights.DEFAULT
 model = mobilenet_v2(weights=weights)
 
+# Freeze all layers
 for param in model.features.parameters():
     param.requires_grad = False
 
+# Unfreeze last 2 blocks (fine-tuning)
+for param in model.features[-2:].parameters():
+    param.requires_grad = True
+
+# Replace classifier
 model.classifier[1] = nn.Linear(model.last_channel, 2)
 model = model.to(DEVICE)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=LR)
+optimizer = torch.optim.Adam(
+    filter(lambda p: p.requires_grad, model.parameters()),
+    lr=LR
+)
 
-# -----------------------
-# Training Loop
-# -----------------------
+# =========================
+# TRAINING LOOP
+# =========================
 for epoch in range(EPOCHS):
     model.train()
     correct, total, running_loss = 0, 0, 0.0
@@ -95,9 +105,9 @@ for epoch in range(EPOCHS):
     acc = 100 * correct / total
     print(f"Epoch [{epoch+1}/{EPOCHS}] Loss: {running_loss:.4f} Accuracy: {acc:.2f}%")
 
-# -----------------------
-# Evaluation
-# -----------------------
+# =========================
+# EVALUATION
+# =========================
 model.eval()
 y_true, y_pred = [], []
 
@@ -129,8 +139,8 @@ plt.ylabel("True")
 plt.title("Confusion Matrix")
 plt.show()
 
-# -----------------------
-# Save Model
-# -----------------------
-torch.save(model.state_dict(), "anterior_cataract_model.pth")
-print("✅ Model saved as anterior_cataract_model.pth")
+# =========================
+# SAVE MODEL
+# =========================
+torch.save(model.state_dict(), "anterior_cataract_model_finetuned.pth")
+print("✅ Fine-tuned model saved as anterior_cataract_model_finetuned.pth")
