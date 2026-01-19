@@ -53,34 +53,34 @@ cataract-ai-detection/
 ├── README.md
 └── requirements.txt
 
-yaml
-Copy code
-
 ---
 
 ## 🚀 How to Run
-
-1️⃣ Install dependencies
+1️⃣ Install Dependencies
 pip install -r requirements.txt
 
-2️⃣ Prepare dataset
+2️⃣ Prepare the Dataset
 python pipeline/prepare_dataset.py
 
-3️⃣ Train the model
+3️⃣ Train the Model
 python pipeline/train_model.py
 
-4️⃣ Evaluate performance
+4️⃣ Evaluate Performance
 python pipeline/evaluate_model.py
 
-5️⃣ Run prediction
+5️⃣ Run Prediction
 python pipeline/predict_with_confidence.py
 
-📈 Results
+## 📈 Results
+
 High accuracy on clinical fundus images
 
-Confusion matrix and confidence-based predictions included
+Confusion matrix included for performance analysis
 
-🔮 Future Work
+Confidence-based predictions for screening support
+
+## 🔮 Future Work
+
 Smartphone / normal eye image pipeline
 
 Domain adaptation between clinical and consumer images
@@ -89,8 +89,9 @@ Cataract severity grading
 
 Explainable AI (Grad-CAM)
 
-Mobile and web deployment
+Mobile and web application deployment
 
-⚠️ Disclaimer
-This project is for educational and research purposes only.
-It must not be used for real-world medical diagnosis.
+## ⚠️ Disclaimer
+
+This project is intended only for educational and research purposes.
+It must not be used for real-world medical diagnosis or treatment.
