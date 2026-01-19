@@ -3,8 +3,9 @@ def generate_explanation(result):
     conf = result["confidence"]
 
     return (
-        f"The system detected **{pred}** with a confidence of {conf:.2f}%. "
-        "This result is based on analysis of the uploaded anterior eye image. "
-        "This is a screening result, not a medical diagnosis. "
-        "Please consult an ophthalmologist for professional evaluation."
+        f"The system detected **{pred}** with a confidence of {conf:.1f}%. "
+        "This assessment is based on visual patterns observed in the anterior eye image. "
+        "This tool is intended for screening and educational purposes only and "
+        "should not be considered a medical diagnosis. "
+        "For accurate diagnosis and treatment, please consult a qualified ophthalmologist."
     )
