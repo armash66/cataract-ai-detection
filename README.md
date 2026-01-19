@@ -71,51 +71,36 @@ eye-disease-detection/
 ---
 
 ## ⚙️ Installation
-
-### 1️⃣ Clone the repository
-```bash
+1️⃣ Clone the repository
 git clone <repository-url>
 cd eye-disease-detection
+
 2️⃣ Install dependencies
-bash
-Copy code
 pip install -r requirements.txt
+
 🧪 How to Run
 ▶️ Fundus Pipeline
-bash
-Copy code
 cd fundus_pipeline
 python prepare_dataset.py
 python train_model.py
 python evaluate_model.py
 python predict_with_confidence.py
+
 ▶️ Anterior Eye Pipeline
-bash
-Copy code
 cd anterior_pipeline
 Prepare dataset
-
-bash
-Copy code
 python src/prepare_dataset.py
 Train fine-tuned model
-
-bash
-Copy code
 python src/train_model.py
 Run prediction
-
-bash
-Copy code
 python src/predict.py <path_to_image>
 Generate Grad-CAM heatmap
-
-bash
-Copy code
 python src/gradcam.py <path_to_image>
+
 This will generate a gradcam_result.png highlighting the image regions influencing the prediction.
 
-🧠 Model Details (Anterior Pipeline)
+## 🧠 Model Details (Anterior Pipeline)
+
 Architecture: MobileNetV2
 
 Pretraining: ImageNet
@@ -126,7 +111,8 @@ Loss Function: Cross-Entropy Loss
 
 Task: Binary classification (Cataract / Normal)
 
-🔮 EyeGPT (Planned Extension)
+## 🔮 EyeGPT (Planned Extension)
+
 EyeGPT is a proposed interactive AI assistant that combines:
 
 Vision-based eye disease detection
@@ -145,7 +131,8 @@ Clear medical disclaimers and guidance
 
 EyeGPT is designed to improve accessibility, interpretability, and user trust in AI-assisted eye screening.
 
-⚠️ Disclaimer
+## ⚠️ Disclaimer
+
 This project is intended strictly for educational and research purposes.
 
 It is not a medical diagnostic tool
@@ -154,7 +141,8 @@ It does not replace professional ophthalmic evaluation
 
 Predictions should always be validated by a qualified medical professional
 
-📌 Author Notes
+## 📌 Author Notes
+
 This repository demonstrates:
 
 Modality-specific deep learning pipelines
@@ -165,7 +153,8 @@ Explainable AI using Grad-CAM
 
 A scalable foundation for AI-assisted healthcare applications
 
-🤝 Contributing
+## 🤝 Contributing
+
 Contributions are welcome!
 
 If you would like to:
