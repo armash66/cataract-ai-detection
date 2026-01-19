@@ -49,12 +49,19 @@ Features:
 This pipeline emphasizes accessibility and real-world usability, making it suitable for future consumer-facing applications.
 
 ## 📁 Repository Structure
+
 eye-disease-detection/
+
 ├── fundus_pipeline/
+
 │   ├── prepare_dataset.py
+
 │   ├── train_model.py
+
 │   ├── evaluate_model.py
+
 │   ├── predict_with_confidence.py
+
 │   └── visualize_data.py
 │
 ├── anterior_pipeline/
