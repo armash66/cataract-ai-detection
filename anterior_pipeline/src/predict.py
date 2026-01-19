@@ -1,23 +1,32 @@
+import os
 import torch
 import torch.nn as nn
-from torchvision import transforms
-from torchvision.models import mobilenet_v2
+from torchvision import models, transforms
 from PIL import Image
-import sys
-import os
 
-# -----------------------
-# Config
-# -----------------------
-MODEL_PATH = "anterior_cataract_model_finetuned.pth"
-IMAGE_SIZE = 224
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+# -----------------------------
+# Device configuration
+# -----------------------------
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# -----------------------
-# Transform
-# -----------------------
+# -----------------------------
+# Paths (ROBUST)
+# -----------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.abspath(
+    os.path.join(BASE_DIR, "..", "anterior_cataract_model_finetuned.pth")
+)
+
+# -----------------------------
+# Classes
+# -----------------------------
+CLASSES = ["Cataract", "Normal"]
+
+# -----------------------------
+# Image preprocessing
+# -----------------------------
 transform = transforms.Compose([
-    transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
+    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(
         mean=[0.485, 0.456, 0.406],
@@ -25,42 +34,56 @@ transform = transforms.Compose([
     )
 ])
 
-# -----------------------
-# Load Model (NEW API)
-# -----------------------
-model = mobilenet_v2(weights=None)
-model.classifier[1] = nn.Linear(model.last_channel, 2)
-model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
-model = model.to(DEVICE)
-model.eval()
+# -----------------------------
+# Load model (once)
+# -----------------------------
+def load_model():
+    model = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.IMAGENET1K_V1)
+    model.classifier[1] = nn.Linear(model.last_channel, 2)
+    model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
+    model.to(DEVICE)
+    model.eval()
+    return model
 
-class_names = ["cataract", "normal"]
+MODEL = load_model()
 
-# -----------------------
-# Predict Function
-# -----------------------
-def predict(image_path):
+# -----------------------------
+# Prediction function (USED BY WEB + CLI)
+# -----------------------------
+def predict_image(image_path: str):
+    """
+    Predict cataract from an anterior eye image.
+
+    Returns:
+        label (str): "Cataract" or "Normal"
+        confidence (float): percentage confidence
+    """
     image = Image.open(image_path).convert("RGB")
     image = transform(image).unsqueeze(0).to(DEVICE)
 
     with torch.no_grad():
-        outputs = model(image)
-        probs = torch.softmax(outputs, dim=1)[0]
+        outputs = MODEL(image)
+        probs = torch.softmax(outputs, dim=1)
+        conf, pred = torch.max(probs, dim=1)
 
-    cataract_prob = probs[0].item() * 100
-    normal_prob = probs[1].item() * 100
-    pred_class = class_names[probs.argmax().item()]
+    label = CLASSES[pred.item()]
+    confidence = conf.item() * 100
 
-    print(f"\nCataract Probability: {cataract_prob:.2f}%")
-    print(f"Normal Probability: {normal_prob:.2f}%")
-    print(f"Status: {pred_class.upper()}")
+    return label, round(confidence, 2)
 
-# -----------------------
-# Run
-# -----------------------
+# -----------------------------
+# CLI usage
+# -----------------------------
 if __name__ == "__main__":
+    import sys
+
     if len(sys.argv) != 2:
-        print("Usage: python src/predict.py <image_path>")
+        print("Usage: python predict.py <path_to_image>")
         sys.exit(1)
 
-    predict(sys.argv[1])
+    img_path = sys.argv[1]
+    label, confidence = predict_image(img_path)
+
+    print(f"Cataract Probability: {confidence if label=='Cataract' else 100-confidence:.2f}%")
+    print(f"Normal Probability: {confidence if label=='Normal' else 100-confidence:.2f}%")
+    print(f"Status: {label.upper()}")
