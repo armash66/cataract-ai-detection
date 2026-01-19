@@ -53,16 +53,22 @@ This pipeline emphasizes accessibility and real-world usability, making it suita
 ```bash
 eye-disease-detection/
 ├── fundus_pipeline/
-│ ├── prepare_dataset.py
-│ ├── train_model.py
-│ ├── evaluate_model.py
-│ ├── predict_with_confidence.py
-│ └── visualize_data.py
+│ ├── dataset/
+│ │ ├── cataract/
+│ │ └── normal/
+│ │
+│ ├── src/
+│ │ ├── prepare_dataset.py
+│ │ ├── train_model.py
+│ │ ├── evaluate_model.py
+│ │ ├── predict_with_confidence.py
+│ │ ├── visualize_data.py
 │
 ├── anterior_pipeline/
 │ ├── dataset/
 │ │ ├── cataract/
 │ │ └── normal/
+│ │
 │ ├── src/
 │ │ ├── prepare_dataset.py
 │ │ ├── train_model.py
