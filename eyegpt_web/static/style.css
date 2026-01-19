@@ -1,0 +1,67 @@
+body {
+    background-color: #f4f6f8;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 700px;
+    margin: 60px auto;
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.upload-box input {
+    margin-bottom: 15px;
+}
+
+.upload-box button {
+    padding: 10px 25px;
+    background-color: #0077cc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.upload-box button:hover {
+    background-color: #005fa3;
+}
+
+.result-card {
+    margin-top: 30px;
+    padding: 20px;
+    border-top: 1px solid #eee;
+    text-align: left;
+}
+
+.explanation {
+    background: #f1f3f5;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.gradcam-img {
+    width: 100%;
+    margin-top: 15px;
+    border-radius: 6px;
+}
+
+.disclaimer {
+    font-size: 12px;
+    color: #999;
+    margin-top: 40px;
+}

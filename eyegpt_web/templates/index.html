@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EyeGPT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>👁️ EyeGPT</h1>
+    <p class="subtitle">AI-based cataract screening from anterior eye images</p>
+
+    <form method="POST" enctype="multipart/form-data" class="upload-box">
+        <input type="file" name="image" required>
+        <button type="submit">Analyze Image</button>
+    </form>
+
+    {% if result %}
+    <div class="result-card">
+        <h2>Result</h2>
+        <p><strong>Prediction:</strong> {{ result.prediction }}</p>
+        <p><strong>Confidence:</strong> {{ result.confidence }}%</p>
+
+        <h3>EyeGPT Explanation</h3>
+        <p class="explanation">{{ explanation }}</p>
+
+        {% if gradcam %}
+        <h3>Grad-CAM Visualization</h3>
+        <img src="{{ url_for('static', filename=gradcam) }}" class="gradcam-img">
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <p class="disclaimer">
+        ⚠️ This tool is for educational and research purposes only.
+        It is not a medical diagnostic system.
+    </p>
+</div>
+
+</body>
+</html>
