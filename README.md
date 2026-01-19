@@ -48,7 +48,7 @@ Features:
 
 This pipeline emphasizes accessibility and real-world usability, making it suitable for future consumer-facing applications.
 
-📁 Repository Structure
+## 📁 Repository Structure
 eye-disease-detection/
 ├── fundus_pipeline/
 │   ├── prepare_dataset.py
@@ -81,18 +81,38 @@ pip install -r requirements.txt
 
 ## 🧪 How to Run
 ### ▶️ Fundus Pipeline
+```bash
 cd fundus_pipeline
+```
+```bash
 python prepare_dataset.py
+```
+```bash
 python train_model.py
+```
+```bash
 python evaluate_model.py
+```
+```bash
 python predict_with_confidence.py
+```
 
 ### ▶️ Anterior Eye Pipeline
+```bash
 cd anterior_pipeline
+```
+```bash
 python src/prepare_dataset.py
+```
+```bash
 python src/train_model.py
+```
+```bash
 python src/predict.py <path_to_image>
+```
+```bash
 python src/gradcam.py <path_to_image>
+```
 
 This will generate a gradcam_result.png highlighting the image regions influencing the prediction.
 
