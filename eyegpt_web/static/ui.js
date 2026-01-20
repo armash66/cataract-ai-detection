@@ -143,9 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 video.setAttribute("playsinline", "");
                 video.style.objectFit = "cover";
 
-                /* 🔹 ADDITION: constrain live camera height */
-                video.style.maxHeight = "260px";
-
                 cameraActive = true;
                 document.body.classList.add("camera-live");
                 cameraSection?.classList.remove("camera-hidden");
@@ -158,27 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         };
     }
-
-    /* ===============================
-       STOP CAMERA (UNCHANGED + SAFE)
-    ================================ */
-
-    const stopBtn = document.createElement("button");
-    stopBtn.id = "stopCameraBtn";
-    stopBtn.innerText = "Stop Camera";
-
-    if (captureBtn && captureBtn.parentElement) {
-        const controls = document.createElement("div");
-        controls.className = "camera-controls";
-        captureBtn.parentElement.insertBefore(controls, captureBtn);
-        controls.appendChild(captureBtn);
-        controls.appendChild(stopBtn);
-    }
-
-    stopBtn.onclick = () => {
-        fadeOutCamera();
-        stopCameraStream();
-    };
 
     function fadeOutCamera() {
         if (!cameraSection) return;
