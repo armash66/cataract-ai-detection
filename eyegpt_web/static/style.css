@@ -1,190 +1,465 @@
+/* =====================================================
+   EyeGPT – Core UI Stylesheet
+   Serious / Medical / Research UI
+   ===================================================== */
+
+/* ===============================
+   BASE RESET
+================================ */
 * {
     box-sizing: border-box;
-    font-family: Inter, system-ui, sans-serif;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 body {
     margin: 0;
-    background: black;
-    color: white;
-    overflow: hidden;
+    background: #0b0f1a;
+    color: #e6e8ee;
+    overflow-x: hidden;
 }
 
-/* Background */
-.bg-video {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: -3;
-}
-
-.overlay {
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(circle at center, rgba(255,0,0,0.1), black 70%);
-    z-index: -2;
-}
-
-/* Layout */
-.app {
+/* ===============================
+   APP LAYOUT
+================================ */
+.app.basic-ui {
+    min-height: 100vh;
     display: flex;
-    height: 100vh;
+    flex-direction: column;
 }
 
-/* LEFT */
-.cyclops-panel {
-    width: 45%;
-    padding: 40px;
-    text-align: center;
+/* ===============================
+   HEADER
+================================ */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 28px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: rgba(10,14,25,0.85);
+    backdrop-filter: blur(10px);
 }
 
-/* Eye */
-.eye-wrapper {
-    position: relative;
-    width: 260px;
-    height: 260px;
-    margin: auto;
+.header-left h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
 }
 
-.eye-core {
-    position: absolute;
-    inset: 40px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #ff2a2a, #500);
-    box-shadow: 0 0 50px red;
-    z-index: 2;
+.subtitle {
+    font-size: 12px;
+    opacity: 0.7;
 }
 
-.eye-iris {
-    position: absolute;
-    inset: 35px;
-    border-radius: 50%;
-    background: black;
+.header-right {
+    font-size: 13px;
+    opacity: 0.8;
 }
 
-/* Energy Rays (ADD-ON) */
-.eye-rays {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    pointer-events: none;
-    background: repeating-conic-gradient(
-        from 0deg,
-        rgba(255,0,0,0.4) 0deg,
-        rgba(255,0,0,0.0) 12deg,
-        rgba(255,0,0,0.0) 28deg
-    );
-    opacity: 0;
-    animation: spin 6s linear infinite;
+/* ===============================
+   MAIN CONTENT GRID
+================================ */
+.content {
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 28px;
+    padding: 28px;
 }
 
-.eye-rays.active {
-    opacity: 1;
+/* ===============================
+   PANELS
+================================ */
+.panel {
+    background: rgba(16,20,36,0.9);
+    border-radius: 14px;
+    padding: 22px;
+    border: 1px solid rgba(255,255,255,0.08);
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
+/* Subtle fade-in */
+.result-panel {
+    animation: fadeIn 0.35s ease;
 }
 
-/* Buttons */
-.scan-btn,
-.ai-btn,
-#startCameraBtn,
-#captureBtn,
-#submitPreviewBtn {
-    width: 100%;
-    padding: 12px;
-    background: linear-gradient(135deg, #ff2a2a, #a00000);
-    border: none;
-    color: white;
-    cursor: pointer;
-    margin-top: 10px;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-.ghost-btn {
-    background: none;
-    border: 1px solid rgba(255,0,0,0.5);
-    color: #ff4d4d;
-    padding: 10px;
-    margin-top: 14px;
-    cursor: pointer;
+/* ===============================
+   STEP HEADERS
+================================ */
+.panel h2 {
+    margin-top: 0;
+    font-size: 16px;
+    font-weight: 600;
 }
 
-/* Camera FIX */
-.camera-frame {
-    max-width: 420px;
-    margin: 10px auto;
-    border: 2px dashed rgba(255,0,0,0.4);
-}
-
-video {
-    width: 100%;
+.panel h2::after {
+    content: "";
     display: block;
+    margin-top: 6px;
+    width: 32px;
+    height: 2px;
+    background: linear-gradient(90deg,#4da3ff,#6ef3c5);
+    opacity: 0.6;
 }
 
-.camera-hidden {
-    display: none;
+/* ===============================
+   RESULT CARD
+================================ */
+.result-box {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
 }
 
-/* RIGHT */
-.intel-panel {
-    width: 55%;
-    padding: 40px;
-    background: rgba(0,0,0,0.65);
-    backdrop-filter: blur(16px);
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    margin-bottom: 10px;
 }
 
-/* Result */
-.result-card {
-    border: 1px solid rgba(255,0,0,0.3);
-    padding: 20px;
-    margin-bottom: 30px;
+.result-name {
+    font-weight: 500;
 }
 
-/* GradCAM */
-#gradcamImage {
-    width: 100%;
-    margin-top: 10px;
+.result-name::before {
+    content: "●";
+    margin-right: 8px;
+    font-size: 11px;
+    vertical-align: middle;
 }
 
-.hidden {
-    display: none;
+/* Normal result */
+.result-panel[data-result="normal"] .result-name {
+    color: #5eead4;
+}
+.result-panel[data-result="normal"] {
+    box-shadow: 0 0 0 1px rgba(80,200,200,0.28);
 }
 
-/* Confidence Ring */
+/* Cataract result */
+.result-panel[data-result="cataract"] .result-name {
+    color: #ff6b6b;
+}
+.result-panel[data-result="cataract"] {
+    box-shadow: 0 0 0 1px rgba(255,80,80,0.28);
+}
+
+/* ===============================
+   CONFIDENCE RING
+================================ */
+.confidence-ring {
+    margin: 14px 0;
+    display: flex;
+    justify-content: center;
+}
+
 .confidence-ring svg circle {
     fill: none;
     stroke-width: 8;
 }
 
 .confidence-ring svg circle:first-child {
-    stroke: rgba(255,255,255,0.2);
+    stroke: rgba(255,255,255,0.15);
 }
 
 #confidenceCircle {
-    stroke: red;
     stroke-dasharray: 314;
     stroke-dashoffset: 314;
     transition: stroke-dashoffset 1s ease;
+    stroke: #5eead4;
 }
 
-/* Chat */
-.chat-box {
-    height: 220px;
-    background: black;
-    padding: 10px;
-    overflow-y: auto;
+/* ===============================
+   CONFIDENCE EXPLANATION
+================================ */
+.confidence-explain {
+    font-size: 12px;
+    line-height: 1.5;
+    opacity: 0.75;
+    margin-top: 6px;
 }
 
-/* Scan line */
-#scanLine {
-    position: fixed;
-    top: -10%;
+/* ===============================
+   IMAGE DISPLAY (NORMAL / GRADCAM)
+================================ */
+.image-frame {
+    display: flex;
+    justify-content: center;
+    margin-top: 14px;
+}
+
+#mainImage {
+    max-width: 360px;
     width: 100%;
-    height: 3px;
-    background: linear-gradient(to right, transparent, red, transparent);
-    opacity: 0;
-    z-index: 5;
+    border-radius: 10px;
+    border: 1px dashed rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.02);
+    transition: opacity 0.2s ease;
+}
+
+/* ===============================
+   GRAD-CAM EXPLANATION
+================================ */
+.gradcam-explain {
+    margin-top: 12px;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    font-size: 12px;
+    line-height: 1.5;
+    opacity: 0.8;
+}
+
+/* ===============================
+   BUTTONS
+================================ */
+.primary-btn,
+.secondary-btn {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg,#4da3ff,#6ef3c5);
+    color: #0b0f1a;
+}
+
+.primary-btn:hover {
+    box-shadow: 0 0 0 2px rgba(110,243,197,0.35);
+}
+
+.secondary-btn {
+    background: rgba(255,255,255,0.05);
+    color: #e6e8ee;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+.secondary-btn:hover {
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.25);
+}
+
+/* =====================================================
+   CAMERA UI — FINAL, CLEAN, WORKING
+   (Dropdown → Live Camera → Capture / Stop)
+===================================================== */
+
+/* -------------------------------
+   CAMERA DROPDOWN (PRE-LIVE)
+-------------------------------- */
+.camera-dropdown {
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed rgba(255,255,255,0.25);
+}
+
+.camera-dropdown p {
+    font-size: 13px;
+    opacity: 0.75;
+    margin: 0 0 10px 0;
+}
+
+.camera-dropdown label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+/* Activate button */
+#startCameraBtn {
+    width: 100%;
+    padding: 10px;
+    opacity: 0.5;
+}
+
+#startCameraBtn:not([disabled]) {
+    opacity: 1;
+}
+
+/* -------------------------------
+   CAMERA LIVE CARD
+-------------------------------- */
+#cameraSection {
+    position: relative;
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.02);
+
+    /* 🔑 THIS IS THE IMPORTANT PART */
+    min-height: 520px;
+}
+
+/* Live badge */
+body.camera-live #cameraSection::before {
+    content: "LIVE CAMERA";
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #ff4d4d;
+    margin-bottom: 8px;
+}
+
+/* -------------------------------
+   VIDEO FRAME
+-------------------------------- */
+.camera-frame {
+    width: 100%;
+    height: 340px;              /* BIG ENOUGH TO SEE */
+    border-radius: 12px;
+    overflow: hidden;
+    background: black;
+}
+
+.camera-frame video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* -------------------------------
+   CAMERA CONTROLS
+-------------------------------- */
+.camera-controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+/* Capture */
+#captureBtn {
+    flex: 1;
+    padding: 12px;
+}
+
+/* Stop */
+#stopCameraBtn {
+    flex: 1;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid rgba(255,77,77,0.6);
+    color: #ff4d4d;
+}
+
+/* Hide controls unless camera is live */
+body:not(.camera-live) .camera-controls {
+    display: none;
+}
+
+/* -------------------------------
+   FADE OUT ON STOP
+-------------------------------- */
+#cameraSection {
+    transition: opacity 0.25s ease;
+}
+
+/* -------------------------------
+   RESPONSIVE SAFETY
+-------------------------------- */
+@media (max-width: 900px) {
+    #cameraSection {
+        min-height: 480px;
+    }
+
+    .camera-frame {
+        height: 300px;
+    }
+}
+/* =========================================
+   HARD CAMERA ESCAPE FIX (NO CLIPPING)
+========================================= */
+
+/* Parent panel must NOT clip children */
+.input-panel,
+.panel,
+.content {
+    overflow: visible !important;
+}
+
+/* Camera section must define its own box */
+#cameraSection {
+    position: relative !important;
+    display: block !important;
+    min-height: 560px !important;
+    overflow: visible !important;
+}
+
+/* Camera frame height hard-forced */
+.camera-frame {
+    height: 360px !important;
+}
+
+/* Controls MUST render */
+.camera-controls {
+    display: flex !important;
+    position: relative !important;
+    margin-top: 16px !important;
+    z-index: 10 !important;
+}
+
+/* Ensure buttons are visible */
+#captureBtn,
+#stopCameraBtn {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+/* =========================================
+   CAMERA CONTROLS – FINAL POLISH FIX
+========================================= */
+
+/* Force single control row */
+.camera-controls {
+    display: flex !important;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+/* Normalize all buttons inside camera controls */
+.camera-controls button {
+    flex: 1;
+    padding: 12px 14px;
+    font-size: 13px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* Capture button (primary but calm) */
+#captureBtn {
+    background: linear-gradient(135deg,#4da3ff,#6ef3c5);
+    color: #0b0f1a;
+    border: none;
+}
+
+/* Stop button (danger but restrained) */
+#stopCameraBtn {
+    background: transparent;
+    border: 1px solid rgba(255,77,77,0.6);
+    color: #ff4d4d;
+}
+
+/* REMOVE accidental large stop button styling */
+.camera-controls .secondary-btn,
+.camera-controls .primary-btn {
+    max-width: none;
+}
+
+/* Kill any rogue full-width stop buttons */
+#cameraSection > button,
+#cameraSection .panel button:not(#captureBtn):not(#stopCameraBtn) {
+    display: none !important;
 }

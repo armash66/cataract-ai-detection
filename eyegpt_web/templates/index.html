@@ -2,151 +2,224 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>EyeGPT — AI Vision System</title>
+    <title>EyeGPT – AI Vision Analysis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="EyeGPT is an AI-assisted eye disease screening system for educational and research purposes only. Not a medical diagnostic tool.">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        /* Image positioning */
+        .image-frame {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 14px;
+        }
+
+        .image-frame img {
+            max-width: 260px;
+            width: 100%;
+            border-radius: 8px;
+            display: none;
+        }
+
+        /* Camera dropdown UX */
+        .camera-dropdown {
+            margin-top: 10px;
+            padding: 12px;
+            border: 1px dashed rgba(255,255,255,0.25);
+            display: none;
+        }
+
+        .camera-actions {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
 
-<!-- Background video -->
-<video autoplay muted loop class="bg-video">
-    <source src="https://cdn.coverr.co/videos/coverr-digital-network-9719/1080p.mp4" type="video/mp4">
-</video>
-<div class="overlay"></div>
+<div class="app basic-ui">
 
-<!-- Scan line -->
-<div id="scanLine"></div>
-
-<div class="app">
-
-    <!-- LEFT PANEL -->
-    <div class="cyclops-panel">
-
-        <!-- Eye Core -->
-        <div class="eye-wrapper">
-            <div class="eye-rays"></div>
-            <div class="eye-core" id="eyeCore">
-                <div class="eye-iris" id="eyeIris"></div>
-            </div>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-left">
+            <h1>EyeGPT</h1>
+            <span class="subtitle">AI Vision Analysis System</span>
         </div>
-
-        <h1>EyeGPT</h1>
-        <p class="tagline">AI Vision Analysis System</p>
-
-        <!-- Upload -->
-        <div class="upload-box">
-            <form method="POST" enctype="multipart/form-data" id="uploadForm">
-                <input type="file" name="image" id="fileInput" required>
-                <button type="submit">SCAN IMAGE</button>
-            </form>
-        </div>
-
-        <!-- Camera Toggle -->
-        <button class="ghost-btn" id="cameraToggleBtn">
-            Camera (Experimental)
-        </button>
-
-        <!-- Camera Panel -->
-        <div id="cameraSection" class="camera-hidden">
-            <p class="warning-text">
-                Camera-based screening is unreliable due to glare and exposure.
-            </p>
-
-            <label>
-                <input type="checkbox" id="ackCheckbox">
-                I understand the limitations
-            </label>
-
-            <button id="startCameraBtn" disabled>Activate Camera</button>
-
-            <!-- 🔧 FIX: containment wrapper prevents half-screen click -->
-            <div class="camera-frame">
-                <video id="video" autoplay playsinline></video>
-            </div>
-
-            <button id="captureBtn">Capture</button>
-            <canvas id="canvas" hidden></canvas>
-        </div>
-
-        <!-- Preview -->
-        <div id="previewSection" class="preview-box">
-            <img id="previewImage">
-            <button id="submitPreviewBtn">Scan Preview</button>
-        </div>
-    </div>
-
-    <!-- RIGHT PANEL -->
-    <div class="intel-panel">
-
-        <div class="hud">
+        <div class="header-right">
             <span>Status:</span>
             <span id="systemStatus">IDLE</span>
         </div>
+    </header>
 
-        {% if result %}
-        <!-- 🔧 FIX: confidence must be numeric, not empty -->
-        <script>
-            window.lastResult = {
-                prediction: "{{ result.prediction }}",
-                confidence: {{ result.confidence }}
-            };
-        </script>
-        {% endif %}
+    <!-- MAIN -->
+    <main class="content">
 
-        {% if result %}
-        <div class="result-card">
-            <h2>Scan Result</h2>
+        <!-- =========================
+             RESULT PANEL
+        ========================== -->
+        <section class="panel result-panel">
 
-            <div class="result-line">
-                <span>{{ result.prediction }}</span>
-                <span>{{ result.confidence }}%</span>
+            <h2>Step 2: AI screening result</h2>
+
+            {% if result %}
+            <div class="result-box">
+
+                <div class="result-row">
+                    <span class="result-name">{{ result.prediction }}</span>
+                    <span class="result-confidence">{{ result.confidence }}%</span>
+                </div>
+
+                <div class="confidence-ring">
+                    <svg width="120" height="120">
+                        <circle cx="60" cy="60" r="50"></circle>
+                        <circle
+                            cx="60"
+                            cy="60"
+                            r="50"
+                            id="confidenceCircle"
+                            data-value="{{ result.confidence }}">
+                        </circle>
+                    </svg>
+                </div>
+
+                <p class="confidence-explain">
+                    <strong>What does this mean?</strong><br>
+                    Confidence reflects how strongly the model matched learned visual patterns.
+                    It does <em>not</em> indicate disease severity.
+                </p>
+
+                <div class="image-frame">
+                    <img
+                        id="mainImage"
+                        src="{{ url_for('static', filename=original_image) }}"
+                        alt="Eye image used for AI screening"
+                        style="display:block;">
+                </div>
+
+                {% if gradcam %}
+                <button
+                    id="gradToggleBtn"
+                    class="secondary-btn"
+                    data-gradcam="{{ url_for('static', filename=gradcam) }}"
+                    style="margin-top:10px;">
+                    Toggle visual explanation (Grad-CAM)
+                </button>
+
+                <div style="margin-top:10px;">
+                    <label for="overlaySlider">Overlay opacity</label>
+                    <input type="range" id="overlaySlider" min="0" max="100" value="100">
+                </div>
+
+                <div class="gradcam-explain">
+                    <strong>How to read this visualization</strong>
+                    <ul>
+                        <li>Warmer regions influenced the model more</li>
+                        <li>This is not a clinical highlight</li>
+                        <li>Provided for transparency & research only</li>
+                    </ul>
+                </div>
+                {% endif %}
+
             </div>
-
-            <!-- Confidence Ring -->
-            <div class="confidence-ring">
-                <svg width="120" height="120">
-                    <circle cx="60" cy="60" r="50"></circle>
-                    <circle cx="60" cy="60" r="50" id="confidenceCircle"></circle>
-                </svg>
+            {% else %}
+            <div class="result-box muted" style="text-align:center;">
+                Upload an eye image to begin AI-assisted screening.
             </div>
+            {% endif %}
 
-            <!-- Grad-CAM -->
-            <button class="ghost-btn" id="gradToggleBtn">
-                Show Visual Explanation
+            <p class="disclaimer">
+                Educational & research use only. This system is not a medical diagnostic tool.
+            </p>
+        </section>
+
+        <!-- =========================
+             INPUT PANEL
+        ========================== -->
+        <section class="panel input-panel">
+
+            <h2>Step 1: Upload eye image</h2>
+
+            <form method="POST"
+                  enctype="multipart/form-data"
+                  id="uploadForm">
+
+                <input type="file" name="image" id="fileInput" required>
+                <button type="submit" class="primary-btn">Scan Image</button>
+            </form>
+
+            <!-- CAMERA BUTTON -->
+            <button id="cameraToggleBtn"
+                    class="secondary-btn"
+                    style="margin-top:16px;">
+                Camera (Experimental)
             </button>
 
-            <!-- 🔧 FIX: isolated section for proper toggle -->
-            <div id="gradcamSection" class="hidden">
-                <input type="range" min="0" max="100" value="60" id="gradSlider">
-                <img
-                    id="gradcamImage"
-                    src="{{ url_for('static', filename=gradcam) }}"
-                    alt="Grad-CAM Visualization"
-                >
+            <!-- CAMERA DROPDOWN / CARD -->
+            <div id="cameraDropdown" class="camera-dropdown">
+
+                <p class="warning-text">
+                    Camera-based screening is unreliable.
+                </p>
+
+                <label>
+                    <input type="checkbox" id="ackCheckbox">
+                    I understand the limitations
+                </label>
+
+                <div class="camera-actions">
+                    <button id="startCameraBtn" disabled>
+                        Activate Camera
+                    </button>
+                </div>
+
+                <!-- CAMERA FEED + CAPTURE MOVED INSIDE -->
+                <div id="cameraSection" class="camera-hidden">
+
+            <div class="camera-frame">
+                <video id="video" autoplay muted playsinline></video>
             </div>
-        </div>
-        {% endif %}
 
-        <!-- Chat -->
-        <div class="chat-panel">
-            <h3>EyeGPT Assistant</h3>
-
-            <div id="aiResponse" class="chat-box">
-                Upload an image to begin analysis.
+            <div class="camera-controls">
+                <button id="captureBtn">Capture</button>
+                <button id="stopCameraBtn">Stop</button>
             </div>
 
-            <button class="ai-btn" onclick="askEyeGPT()">
-                Explain Result
-            </button>
+            <canvas id="canvas" hidden></canvas>
         </div>
 
-        <p class="disclaimer">
-            Educational & research use only. Not a medical diagnostic tool.
-        </p>
 
-    </div>
+            </div>
+
+            <img id="previewImage" style="display:none;">
+        </section>
+
+    </main>
 </div>
 
+<!-- ===============================
+     DROPDOWN TOGGLE (UI ONLY)
+================================ -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const cameraBtn = document.getElementById("cameraToggleBtn");
+    const dropdown = document.getElementById("cameraDropdown");
+
+    if (cameraBtn && dropdown) {
+        cameraBtn.addEventListener("click", () => {
+            dropdown.style.display =
+                dropdown.style.display === "block" ? "none" : "block";
+        });
+    }
+});
+</script>
+
+<!-- SCRIPTS -->
 <script src="{{ url_for('static', filename='camera.js') }}"></script>
-<script src="{{ url_for('static', filename='ui-effects.js') }}"></script>
+<script src="{{ url_for('static', filename='ui.js') }}"></script>
+
 </body>
 </html>
