@@ -2,100 +2,151 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>EyeGPT</title>
+    <title>EyeGPT — AI Vision System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<div class="container">
-    <h1>👁️ EyeGPT</h1>
-    <p class="subtitle">AI-based cataract screening (educational use only)</p>
+<!-- Background video -->
+<video autoplay muted loop class="bg-video">
+    <source src="https://cdn.coverr.co/videos/coverr-digital-network-9719/1080p.mp4" type="video/mp4">
+</video>
+<div class="overlay"></div>
 
-    <!-- Upload -->
-    <h3>Upload Image (Recommended)</h3>
-    <form method="POST" enctype="multipart/form-data" id="uploadForm">
-        <input type="file" name="image" id="fileInput" required>
-        <button type="submit">Analyze Image</button>
-    </form>
+<!-- Scan line -->
+<div id="scanLine"></div>
 
-    <!-- Camera -->
-    <h3>Camera Capture (⚠️ Demo Only)</h3>
-    <div class="camera-warning">
-        Camera-based results are unreliable due to glare, flash, reflections, and exposure.
-        <br><strong>Do NOT rely on camera results.</strong>
+<div class="app">
+
+    <!-- LEFT PANEL -->
+    <div class="cyclops-panel">
+
+        <!-- Eye Core -->
+        <div class="eye-wrapper">
+            <div class="eye-rays"></div>
+            <div class="eye-core" id="eyeCore">
+                <div class="eye-iris" id="eyeIris"></div>
+            </div>
+        </div>
+
+        <h1>EyeGPT</h1>
+        <p class="tagline">AI Vision Analysis System</p>
+
+        <!-- Upload -->
+        <div class="upload-box">
+            <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                <input type="file" name="image" id="fileInput" required>
+                <button type="submit">SCAN IMAGE</button>
+            </form>
+        </div>
+
+        <!-- Camera Toggle -->
+        <button class="ghost-btn" id="cameraToggleBtn">
+            Camera (Experimental)
+        </button>
+
+        <!-- Camera Panel -->
+        <div id="cameraSection" class="camera-hidden">
+            <p class="warning-text">
+                Camera-based screening is unreliable due to glare and exposure.
+            </p>
+
+            <label>
+                <input type="checkbox" id="ackCheckbox">
+                I understand the limitations
+            </label>
+
+            <button id="startCameraBtn" disabled>Activate Camera</button>
+
+            <!-- 🔧 FIX: containment wrapper prevents half-screen click -->
+            <div class="camera-frame">
+                <video id="video" autoplay playsinline></video>
+            </div>
+
+            <button id="captureBtn">Capture</button>
+            <canvas id="canvas" hidden></canvas>
+        </div>
+
+        <!-- Preview -->
+        <div id="previewSection" class="preview-box">
+            <img id="previewImage">
+            <button id="submitPreviewBtn">Scan Preview</button>
+        </div>
     </div>
 
-    <label>
-        <input type="checkbox" id="ackCheckbox">
-        I understand camera results are unreliable
-    </label>
+    <!-- RIGHT PANEL -->
+    <div class="intel-panel">
 
-    <br><br>
-    <button id="startCameraBtn" disabled>Enable Camera</button>
+        <div class="hud">
+            <span>Status:</span>
+            <span id="systemStatus">IDLE</span>
+        </div>
 
-    <div id="cameraSection" style="display:none;">
-        <video id="video" autoplay></video>
-        <button id="captureBtn">Capture</button>
-        <canvas id="canvas" style="display:none;"></canvas>
-    </div>
-
-    <!-- Preview -->
-    <div id="previewSection" style="display:none;">
-        <h3>Preview</h3>
-        <img id="previewImage" class="preview-img">
-        <button id="submitPreviewBtn">Analyze Preview</button>
-    </div>
-
-    {% if error %}
-    <div class="error-box">{{ error }}</div>
-    {% endif %}
-
-    {% if result %}
-    <div class="result-box">
-        <h3>Result</h3>
-        <p><strong>{{ result.prediction }}</strong></p>
-        <p>Confidence: {{ result.confidence }}%</p>
-
+        {% if result %}
+        <!-- 🔧 FIX: confidence must be numeric, not empty -->
         <script>
             window.lastResult = {
                 prediction: "{{ result.prediction }}",
-                confidence: "{{ result.confidence }}"
+                confidence: {{ result.confidence }}
             };
         </script>
+        {% endif %}
 
-        <h3>
-            Grad-CAM Visualization
-            <button class="toggle-btn" onclick="toggleGradCam(this)">Show</button>
-        </h3>
+        {% if result %}
+        <div class="result-card">
+            <h2>Scan Result</h2>
 
-        <img
-            id="gradcamImage"
-            src="{{ url_for('static', filename=gradcam) }}"
-            class="gradcam-img"
-            style="display:none;"
-        >
+            <div class="result-line">
+                <span>{{ result.prediction }}</span>
+                <span>{{ result.confidence }}%</span>
+            </div>
+
+            <!-- Confidence Ring -->
+            <div class="confidence-ring">
+                <svg width="120" height="120">
+                    <circle cx="60" cy="60" r="50"></circle>
+                    <circle cx="60" cy="60" r="50" id="confidenceCircle"></circle>
+                </svg>
+            </div>
+
+            <!-- Grad-CAM -->
+            <button class="ghost-btn" id="gradToggleBtn">
+                Show Visual Explanation
+            </button>
+
+            <!-- 🔧 FIX: isolated section for proper toggle -->
+            <div id="gradcamSection" class="hidden">
+                <input type="range" min="0" max="100" value="60" id="gradSlider">
+                <img
+                    id="gradcamImage"
+                    src="{{ url_for('static', filename=gradcam) }}"
+                    alt="Grad-CAM Visualization"
+                >
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Chat -->
+        <div class="chat-panel">
+            <h3>EyeGPT Assistant</h3>
+
+            <div id="aiResponse" class="chat-box">
+                Upload an image to begin analysis.
+            </div>
+
+            <button class="ai-btn" onclick="askEyeGPT()">
+                Explain Result
+            </button>
+        </div>
+
+        <p class="disclaimer">
+            Educational & research use only. Not a medical diagnostic tool.
+        </p>
+
     </div>
-    {% endif %}
-
-    <!-- CHATBOT ALWAYS VISIBLE -->
-    <hr>
-
-    <h3>💬 EyeGPT Assistant</h3>
-    <p style="color:#555;">
-        EyeGPT explains the screening result in simple, non-diagnostic language.
-    </p>
-
-    <button class="ai-btn" onclick="askEyeGPT()">Ask EyeGPT</button>
-
-    <div id="aiResponse" class="ai-response">
-        Upload and analyze an image to receive an explanation.
-    </div>
-
-    <p class="disclaimer">
-        ⚠️ Educational & research use only. Not a medical diagnostic tool.
-    </p>
 </div>
 
 <script src="{{ url_for('static', filename='camera.js') }}"></script>
+<script src="{{ url_for('static', filename='ui-effects.js') }}"></script>
 </body>
 </html>

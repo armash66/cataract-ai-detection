@@ -1,91 +1,97 @@
-let stream = null;
-
+const cameraToggleBtn = document.getElementById("cameraToggleBtn");
+const cameraSection = document.getElementById("cameraSection");
 const ackCheckbox = document.getElementById("ackCheckbox");
 const startCameraBtn = document.getElementById("startCameraBtn");
-const cameraSection = document.getElementById("cameraSection");
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
+const captureBtn = document.getElementById("captureBtn");
 const previewSection = document.getElementById("previewSection");
 const previewImage = document.getElementById("previewImage");
+const submitPreviewBtn = document.getElementById("submitPreviewBtn");
 const fileInput = document.getElementById("fileInput");
 const uploadForm = document.getElementById("uploadForm");
 
-ackCheckbox.addEventListener("change", () => {
-    startCameraBtn.disabled = !ackCheckbox.checked;
-});
+let stream = null;
 
-startCameraBtn.addEventListener("click", () => {
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(s => {
-            stream = s;
-            video.srcObject = stream;
-            cameraSection.style.display = "block";
-            startCameraBtn.style.display = "none";
-        });
-});
-
-document.getElementById("captureBtn").addEventListener("click", () => {
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext("2d").drawImage(video, 0, 0);
-
-    canvas.toBlob(blob => {
-        const file = new File([blob], "camera.png", { type: "image/png" });
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        fileInput.files = dt.files;
-
-        previewImage.src = URL.createObjectURL(blob);
-        previewSection.style.display = "block";
-    });
-
-    stream.getTracks().forEach(t => t.stop());
-});
-
-document.getElementById("submitPreviewBtn").addEventListener("click", () => {
-    uploadForm.submit();
-});
-
-/* -------- EyeGPT (RULE-BASED, INSTANT) -------- */
-
-function askEyeGPT() {
-    const box = document.getElementById("aiResponse");
-
-    if (!window.lastResult) {
-        box.innerHTML = "Please analyze an image first.";
-        return;
-    }
-
-    box.innerHTML = "Generating explanation...";
-
-    fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            result: window.lastResult
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        box.innerHTML = data.response.replace(/\n/g, "<br>");
-    })
-    .catch(() => {
-        box.innerHTML = "EyeGPT is unavailable.";
-    });
+/* ===============================
+   TOGGLE CAMERA (SAFE)
+================================ */
+if (cameraToggleBtn && cameraSection) {
+    cameraToggleBtn.onclick = () => {
+        cameraSection.classList.toggle("camera-hidden");
+    };
 }
 
-/* -------- Grad-CAM Toggle (FIXED) -------- */
+/* ===============================
+   ACK GATE
+================================ */
+if (ackCheckbox && startCameraBtn) {
+    ackCheckbox.onchange = () => {
+        startCameraBtn.disabled = !ackCheckbox.checked;
+    };
+}
 
-function toggleGradCam(button) {
-    const img = document.getElementById("gradcamImage");
+/* ===============================
+   START CAMERA
+================================ */
+if (startCameraBtn && video) {
+    startCameraBtn.onclick = async () => {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "user" }
+            });
 
-    if (!img) return;
+            video.srcObject = stream;
 
-    if (img.style.display === "none") {
-        img.style.display = "block";
-        button.innerText = "Hide";
-    } else {
-        img.style.display = "none";
-        button.innerText = "Show";
-    }
+            /* 🔹 ADDITION: prevent video hijacking layout */
+            video.style.maxWidth = "100%";
+            video.style.pointerEvents = "auto";
+
+        } catch (err) {
+            alert("Camera access denied or unavailable.");
+        }
+    };
+}
+
+/* ===============================
+   CAPTURE FRAME
+================================ */
+if (captureBtn && canvas && video) {
+    captureBtn.onclick = () => {
+        if (!video.videoWidth || !video.videoHeight) {
+            alert("Camera not ready.");
+            return;
+        }
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+
+        canvas.toBlob(blob => {
+            if (!blob) return;
+
+            const file = new File([blob], "camera.png", { type: "image/png" });
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInput.files = dt.files;
+
+            previewImage.src = URL.createObjectURL(blob);
+            previewSection.style.display = "block";
+        });
+
+        /* 🔹 ADDITION: cleanly stop stream */
+        if (stream) {
+            stream.getTracks().forEach(t => t.stop());
+            stream = null;
+        }
+    };
+}
+
+/* ===============================
+   SUBMIT PREVIEW
+================================ */
+if (submitPreviewBtn && uploadForm) {
+    submitPreviewBtn.onclick = () => uploadForm.submit();
 }

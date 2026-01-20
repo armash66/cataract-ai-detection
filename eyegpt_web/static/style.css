@@ -1,54 +1,190 @@
+* {
+    box-sizing: border-box;
+    font-family: Inter, system-ui, sans-serif;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f8;
+    margin: 0;
+    background: black;
+    color: white;
+    overflow: hidden;
 }
 
-.container {
-    max-width: 760px;
+/* Background */
+.bg-video {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -3;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(255,0,0,0.1), black 70%);
+    z-index: -2;
+}
+
+/* Layout */
+.app {
+    display: flex;
+    height: 100vh;
+}
+
+/* LEFT */
+.cyclops-panel {
+    width: 45%;
+    padding: 40px;
+    text-align: center;
+}
+
+/* Eye */
+.eye-wrapper {
+    position: relative;
+    width: 260px;
+    height: 260px;
     margin: auto;
-    background: white;
-    padding: 30px;
 }
 
-.camera-warning {
-    background: #fff3cd;
+.eye-core {
+    position: absolute;
+    inset: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ff2a2a, #500);
+    box-shadow: 0 0 50px red;
+    z-index: 2;
+}
+
+.eye-iris {
+    position: absolute;
+    inset: 35px;
+    border-radius: 50%;
+    background: black;
+}
+
+/* Energy Rays (ADD-ON) */
+.eye-rays {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    background: repeating-conic-gradient(
+        from 0deg,
+        rgba(255,0,0,0.4) 0deg,
+        rgba(255,0,0,0.0) 12deg,
+        rgba(255,0,0,0.0) 28deg
+    );
+    opacity: 0;
+    animation: spin 6s linear infinite;
+}
+
+.eye-rays.active {
+    opacity: 1;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Buttons */
+.scan-btn,
+.ai-btn,
+#startCameraBtn,
+#captureBtn,
+#submitPreviewBtn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #ff2a2a, #a00000);
+    border: none;
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.ghost-btn {
+    background: none;
+    border: 1px solid rgba(255,0,0,0.5);
+    color: #ff4d4d;
     padding: 10px;
+    margin-top: 14px;
+    cursor: pointer;
 }
 
-.error-box {
-    background: #f8d7da;
-    padding: 10px;
+/* Camera FIX */
+.camera-frame {
+    max-width: 420px;
+    margin: 10px auto;
+    border: 2px dashed rgba(255,0,0,0.4);
 }
 
-.result-box {
-    background: #e9ecef;
-    padding: 15px;
-    margin-top: 15px;
+video {
+    width: 100%;
+    display: block;
 }
 
-.preview-img, .gradcam-img {
+.camera-hidden {
+    display: none;
+}
+
+/* RIGHT */
+.intel-panel {
+    width: 55%;
+    padding: 40px;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(16px);
+}
+
+/* Result */
+.result-card {
+    border: 1px solid rgba(255,0,0,0.3);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+/* GradCAM */
+#gradcamImage {
     width: 100%;
     margin-top: 10px;
 }
 
-.ai-btn {
-    background: #4c6ef5;
-    color: white;
-    padding: 10px 16px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+.hidden {
+    display: none;
 }
 
-.ai-response {
-    margin-top: 10px;
-    background: white;
-    padding: 12px;
-    border-radius: 6px;
+/* Confidence Ring */
+.confidence-ring svg circle {
+    fill: none;
+    stroke-width: 8;
 }
 
-.disclaimer {
-    font-size: 12px;
-    color: #666;
-    margin-top: 20px;
+.confidence-ring svg circle:first-child {
+    stroke: rgba(255,255,255,0.2);
+}
+
+#confidenceCircle {
+    stroke: red;
+    stroke-dasharray: 314;
+    stroke-dashoffset: 314;
+    transition: stroke-dashoffset 1s ease;
+}
+
+/* Chat */
+.chat-box {
+    height: 220px;
+    background: black;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+/* Scan line */
+#scanLine {
+    position: fixed;
+    top: -10%;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(to right, transparent, red, transparent);
+    opacity: 0;
+    z-index: 5;
 }
