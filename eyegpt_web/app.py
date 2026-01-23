@@ -4,6 +4,7 @@ import os
 from inference import run_inference
 from chatbot import get_chatbot_response
 from db import init_db, get_db
+import uuid
 
 app = Flask(__name__)
 
@@ -24,8 +25,11 @@ def index():
         file = request.files.get("image")
 
         if file:
-            image_path = os.path.join(UPLOAD_FOLDER, file.filename)
+            ext = os.path.splitext(file.filename)[1]
+            unique_name = f"{uuid.uuid4().hex}{ext}"
+            image_path = os.path.join(UPLOAD_FOLDER, unique_name)
             file.save(image_path)
+
 
             inference_result = run_inference(image_path)
 
@@ -80,6 +84,17 @@ def history():
     conn.close()
 
     return render_template("history.html", history=rows)
+
+@app.route("/clear-history", methods=["POST"])
+def clear_history():
+    conn = get_db()
+    c = conn.cursor()
+
+    c.execute("DELETE FROM history")
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("history"))
 
 @app.route("/chat", methods=["POST"])
 def chat():

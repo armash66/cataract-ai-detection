@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>EyeGPT – History</title>
+    <form action="{{ url_for('clear_history') }}" method="POST" style="margin-bottom:16px;">
+    <button type="submit" class="secondary-btn"
+            onclick="return confirm('Clear all history? This cannot be undone.')">
+        Clear History
+    </button>
+</form>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
