@@ -23,7 +23,7 @@
             max-width: 260px;
             width: 100%;
             border-radius: 8px;
-            display: none;
+            /* ✅ FIX: REMOVED display:none */
         }
 
         /* Camera dropdown UX */
@@ -49,18 +49,16 @@
             <h1>EyeGPT</h1>
             <span class="subtitle">AI Vision Analysis System</span>
         </div>
+
         <div class="header-right">
-            <span>Status:</span>
-            <span id="systemStatus">IDLE</span>
+            <a href="/history" class="secondary-btn">Review History</a>
         </div>
     </header>
 
     <!-- MAIN -->
     <main class="content">
 
-        <!-- =========================
-             RESULT PANEL
-        ========================== -->
+        <!-- RESULT PANEL -->
         <section class="panel result-panel">
 
             <h2>Step 2: AI screening result</h2>
@@ -96,8 +94,7 @@
                     <img
                         id="mainImage"
                         src="{{ url_for('static', filename=original_image) }}"
-                        alt="Eye image used for AI screening"
-                        style="display:block;">
+                        alt="Eye image used for AI screening">
                 </div>
 
                 {% if gradcam %}
@@ -114,7 +111,7 @@
                     <input type="range" id="overlaySlider" min="0" max="100" value="100">
                 </div>
 
-                <div class="gradcam-explain">
+                <div class="gradcam-explain" id="xaiExplain">
                     <strong>How to read this visualization</strong>
                     <ul>
                         <li>Warmer regions influenced the model more</li>
@@ -136,17 +133,12 @@
             </p>
         </section>
 
-        <!-- =========================
-             INPUT PANEL
-        ========================== -->
+        <!-- INPUT PANEL -->
         <section class="panel input-panel">
 
             <h2>Step 1: Upload eye image</h2>
 
-            <form method="POST"
-                  enctype="multipart/form-data"
-                  id="uploadForm">
-
+            <form method="POST" enctype="multipart/form-data" id="uploadForm">
                 <input type="file" name="image" id="fileInput" required>
                 <button type="submit" class="primary-btn">Scan Image</button>
             </form>
@@ -158,9 +150,8 @@
                 Camera (Experimental)
             </button>
 
-            <!-- CAMERA DROPDOWN / CARD -->
+            <!-- CAMERA DROPDOWN -->
             <div id="cameraDropdown" class="camera-dropdown">
-
                 <p class="warning-text">
                     Camera-based screening is unreliable.
                 </p>
@@ -175,22 +166,21 @@
                         Activate Camera
                     </button>
                 </div>
-
             </div>
+
+            <!-- CAMERA SECTION -->
             <div id="cameraSection" class="camera-hidden">
+                <div class="camera-frame">
+                    <video id="video" autoplay muted playsinline></video>
+                </div>
 
-            <div class="camera-frame">
-                <video id="video" autoplay muted playsinline></video>
+                <div class="camera-controls">
+                    <button id="captureBtn">Capture</button>
+                    <button id="stopCameraBtn">Stop</button>
+                </div>
+
+                <canvas id="canvas" hidden></canvas>
             </div>
-
-            <div class="camera-controls">
-                <button id="captureBtn">Capture</button>
-                <button id="stopCameraBtn">Stop</button>
-            </div>
-
-            <canvas id="canvas" hidden></canvas>
-        </div>
-
 
             <img id="previewImage" style="display:none;">
         </section>
@@ -198,9 +188,7 @@
     </main>
 </div>
 
-<!-- ===============================
-     DROPDOWN TOGGLE (UI ONLY)
-================================ -->
+<!-- DROPDOWN TOGGLE -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const cameraBtn = document.getElementById("cameraToggleBtn");
@@ -215,7 +203,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
-<!-- SCRIPTS -->
 <script src="{{ url_for('static', filename='camera.js') }}"></script>
 <script src="{{ url_for('static', filename='ui.js') }}"></script>
 

@@ -33,175 +33,213 @@ document.addEventListener("DOMContentLoaded", () => {
     const scanBtn = uploadForm?.querySelector("button[type='submit']");
     const resultPanel = document.querySelector(".result-panel");
     const resultName = document.querySelector(".result-name");
+    const xaiExplain = document.getElementById("xaiExplain");
 
-    let stream = null;
-    let cameraActive = false;
-    let imageFromCamera = false;
-    let showingGradcam = false;
+    if (xaiExplain && resultName) {
+        const resultText = resultName.innerText.toLowerCase();
 
-    const originalSrc = image ? image.getAttribute("src") : null;
-    const gradcamSrc = gradToggleBtn ? gradToggleBtn.dataset.gradcam : null;
-
-    /* =====================================================
-       🔹 ADDITION 1: RESULT → data-result AUTO WIRING
-       (activates red/green accent automatically)
-    ===================================================== */
-    if (resultPanel && resultName) {
-        const text = resultName.innerText.toLowerCase();
-        if (text.includes("normal")) {
-            resultPanel.dataset.result = "normal";
-        } else if (text.includes("cataract")) {
-            resultPanel.dataset.result = "cataract";
+        if (resultText.includes("cataract")) {
+            xaiExplain.innerHTML = `
+                <strong>Visual explanation (XAI)</strong>
+                <ul>
+                    <li>Highlighted regions influenced the model’s cataract prediction</li>
+                    <li>Focus areas may include lens opacity patterns</li>
+                    <li>This visualization is for transparency, not diagnosis</li>
+                </ul>
+            `;
+        } else if (resultText.includes("normal")) {
+            xaiExplain.innerHTML = `
+                <strong>Visual explanation (XAI)</strong>
+                <ul>
+                    <li>The model found no strong cataract-related patterns</li>
+                    <li>Highlighted regions show areas checked and ruled out</li>
+                    <li>This does not guarantee absence of disease</li>
+                </ul>
+            `;
         }
     }
 
-    /* =====================================================
-       INTERNAL CAMERA UTILITIES (UNCHANGED)
-    ===================================================== */
-    function stopCameraStream() {
-        if (stream) {
-            stream.getTracks().forEach(track => {
-                try { track.stop(); } catch (_) {}
-            });
-            stream = null;
-        }
+  /* =====================================================
+   CAMERA STATE
+===================================================== */
 
-        if (video) video.srcObject = null;
-        cameraActive = false;
-        document.body.classList.remove("camera-live");
-        unlockScan();
-    }
+let stream = null;
+let cameraActive = false;
+let imageFromCamera = false;
 
-    /* =====================================================
-       🔹 ADDITION 2: LOCK / UNLOCK SCAN IMAGE
-    ===================================================== */
-    function lockScan() {
-        if (!scanBtn) return;
-        scanBtn.disabled = true;
-        scanBtn.style.opacity = "0.5";
-        scanBtn.style.pointerEvents = "none";
-    }
+/* =====================================================
+   CAMERA UTILITIES
+===================================================== */
 
-    function unlockScan() {
-        if (!scanBtn) return;
-        scanBtn.disabled = false;
-        scanBtn.style.opacity = "1";
-        scanBtn.style.pointerEvents = "auto";
-    }
-
-    /* ===============================
-       CAMERA DROPDOWN SLIDE (UNCHANGED)
-    ================================ */
-
-    if (cameraToggleBtn && cameraDropdown) {
-        cameraDropdown.style.maxHeight = "0px";
-        cameraDropdown.style.overflow = "hidden";
-        cameraDropdown.style.transition = "max-height 0.35s ease, opacity 0.25s ease";
-        cameraDropdown.style.opacity = "0";
-
-        cameraToggleBtn.addEventListener("click", () => {
-            const open = cameraDropdown.classList.contains("open");
-
-            if (open) {
-                cameraDropdown.style.maxHeight = "0px";
-                cameraDropdown.style.opacity = "0";
-                cameraDropdown.classList.remove("open");
-            } else {
-                cameraDropdown.style.maxHeight = "320px";
-                cameraDropdown.style.opacity = "1";
-                cameraDropdown.classList.add("open");
-            }
+function stopCameraStream() {
+    if (stream) {
+        stream.getTracks().forEach(track => {
+            try { track.stop(); } catch (_) {}
         });
+        stream = null;
     }
 
-    /* ===============================
-       ACK GATE (UNCHANGED)
-    ================================ */
-
-    if (ackCheckbox && startCameraBtn) {
-        ackCheckbox.onchange = () => {
-            startCameraBtn.disabled = !ackCheckbox.checked;
-        };
+    if (video) {
+        video.srcObject = null; // black screen
     }
 
-    /* ===============================
-       START CAMERA (MINOR ADDITION)
-    ================================ */
+    resetCameraUI();
+}
 
-    if (startCameraBtn && video) {
-        startCameraBtn.onclick = async () => {
-            if (cameraActive) return;
+function resetCameraUI() {
+    cameraActive = false;
 
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "user", width: 640, height: 480 },
-                    audio: false
-                });
+    document.body.classList.remove("camera-live");
 
-                video.srcObject = stream;
-                video.muted = true;
-                video.setAttribute("playsinline", "");
-                video.style.objectFit = "cover";
+    if (cameraSection) {
+        cameraSection.classList.add("camera-hidden");
+    }
 
-                cameraActive = true;
-                document.body.classList.add("camera-live");
-                cameraSection?.classList.remove("camera-hidden");
+    unlockScan();
+}
 
-                lockScan();
+/* =====================================================
+   LOCK / UNLOCK SCAN
+===================================================== */
 
-            } catch (err) {
-                alert("Camera access denied or unavailable.");
+function lockScan() {
+    if (!scanBtn) return;
+    scanBtn.disabled = true;
+    scanBtn.style.opacity = "0.5";
+    scanBtn.style.pointerEvents = "none";
+}
+
+function unlockScan() {
+    if (!scanBtn) return;
+    scanBtn.disabled = false;
+    scanBtn.style.opacity = "1";
+    scanBtn.style.pointerEvents = "auto";
+}
+
+/* =====================================================
+   CAMERA DROPDOWN (SAFE)
+===================================================== */
+
+if (cameraToggleBtn && cameraDropdown) {
+    cameraDropdown.style.maxHeight = "0px";
+    cameraDropdown.style.opacity = "0";
+    cameraDropdown.style.overflow = "hidden";
+    cameraDropdown.style.transition = "max-height 0.35s ease, opacity 0.25s ease";
+
+    cameraToggleBtn.onclick = () => {
+        const open = cameraDropdown.classList.contains("open");
+
+        if (open) {
+            cameraDropdown.style.maxHeight = "0px";
+            cameraDropdown.style.opacity = "0";
+            cameraDropdown.classList.remove("open");
+
+            if (cameraActive) {
                 stopCameraStream();
             }
-        };
-    }
+        } else {
+            cameraDropdown.style.maxHeight = "320px";
+            cameraDropdown.style.opacity = "1";
+            cameraDropdown.classList.add("open");
+        }
+    };
+}
 
-    function fadeOutCamera() {
-        if (!cameraSection) return;
-        cameraSection.style.opacity = "0";
-        setTimeout(() => {
-            cameraSection.style.opacity = "";
-        }, 250);
-    }
+/* =====================================================
+   ACK GATE
+===================================================== */
 
-    /* ===============================
-       CAPTURE FRAME (AUTO-STOP)
-    ================================ */
+if (ackCheckbox && startCameraBtn) {
+    ackCheckbox.onchange = () => {
+        startCameraBtn.disabled = !ackCheckbox.checked;
+    };
+}
 
-    if (captureBtn && canvas && video) {
-        captureBtn.onclick = () => {
-            if (!cameraActive || !video.videoWidth) {
-                alert("Camera not ready.");
-                return;
-            }
+/* =====================================================
+   START CAMERA
+===================================================== */
 
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext("2d").drawImage(video, 0, 0);
+if (startCameraBtn && video) {
+    startCameraBtn.onclick = async () => {
+        if (cameraActive) return;
 
-            canvas.toBlob(blob => {
-                if (!blob) return;
-
-                const file = new File([blob], "camera.png", { type: "image/png" });
-                const dt = new DataTransfer();
-                dt.items.add(file);
-                fileInput.files = dt.files;
-
-                if (previewImage) {
-                    previewImage.src = URL.createObjectURL(blob);
-                }
-                if (previewSection) {
-                    previewSection.style.display = "block";
-                }
-
-                imageFromCamera = true;
-                disableGradCam();
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "user", width: 640, height: 480 },
+                audio: false
             });
 
-            fadeOutCamera();
+            video.srcObject = stream;
+            video.muted = true;
+            video.setAttribute("playsinline", "");
+            video.style.objectFit = "cover";
+
+            cameraActive = true;
+            document.body.classList.add("camera-live");
+
+            if (cameraSection) {
+                cameraSection.classList.remove("camera-hidden");
+            }
+
+            lockScan();
+
+        } catch (err) {
+            alert("Camera access denied or unavailable.");
             stopCameraStream();
-        };
-    }
+        }
+    };
+}
+
+/* =====================================================
+   STOP CAMERA (NO CAPTURE)
+===================================================== */
+
+if (stopCameraBtn) {
+    stopCameraBtn.onclick = () => {
+        if (!cameraActive) return;
+        stopCameraStream();
+    };
+}
+
+/* =====================================================
+   CAPTURE FRAME (ONE HANDLER ONLY)
+===================================================== */
+
+if (captureBtn && canvas && video) {
+    captureBtn.onclick = () => {
+        if (!cameraActive || !video.videoWidth) {
+            alert("Camera not ready.");
+            return;
+        }
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext("2d").drawImage(video, 0, 0);
+
+        canvas.toBlob(blob => {
+            if (!blob) return;
+
+            const file = new File([blob], "camera.png", { type: "image/png" });
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInput.files = dt.files;
+
+            if (previewImage) {
+                previewImage.src = URL.createObjectURL(blob);
+            }
+
+            if (previewSection) {
+                previewSection.style.display = "block";
+            }
+
+            imageFromCamera = true;
+            disableGradCam();
+
+            stopCameraStream(); // stop AFTER capture
+        });
+    };
+}
+
 
     /* ===============================
        SUBMIT PREVIEW (UNCHANGED)
@@ -296,3 +334,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+const historyBtn = document.getElementById("historyBtn");
+
+if (historyBtn) {
+    historyBtn.addEventListener("click", () => {
+        window.location.href = "/history";
+    });
+}

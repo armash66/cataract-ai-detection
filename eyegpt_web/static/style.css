@@ -368,3 +368,43 @@ body {
 body:not(.camera-live) .camera-controls {
     display: none;
 }
+
+/* ===============================
+   HISTORY GRID
+================================ */
+.history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.history-card {
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    text-align: center;
+}
+
+.history-card img {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.history-info {
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.history-info small {
+    opacity: 0.6;
+}
+/* Camera OFF state (black screen) */
+.camera-off .camera-frame {
+    background: #000;
+}
+
+.camera-off video {
+    display: none;
+}
