@@ -75,7 +75,7 @@ def history():
     c = conn.cursor()
 
     c.execute("""
-        SELECT prediction, confidence, image_path, gradcam_path, timestamp
+        SELECT id, image_path, gradcam_path, prediction, confidence, timestamp
         FROM history
         ORDER BY timestamp DESC
     """)
@@ -85,7 +85,8 @@ def history():
 
     return render_template("history.html", history=rows)
 
-@app.route("/clear-history", methods=["POST"])
+
+@app.route("/history/clear", methods=["POST"])
 def clear_history():
     conn = get_db()
     c = conn.cursor()
@@ -96,6 +97,7 @@ def clear_history():
 
     return redirect(url_for("history"))
 
+
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.json
@@ -103,6 +105,14 @@ def chat():
     response = get_chatbot_response(result)
     return jsonify({"response": response})
 
+@app.route("/delete/<int:id>", methods=["POST"])
+def delete_history(id):
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("DELETE FROM history WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for("history"))
 
 if __name__ == "__main__":
     print("Starting EyeGPT...")
