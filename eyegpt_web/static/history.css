@@ -1,19 +1,30 @@
 /* ===============================
    ROOT & THEME
 ================================ */
-html{
+html, body {
     width: 100%;
-    overflow-x: hidden;
-}
-
-body {
     margin: 0;
     font-family: Inter, system-ui, sans-serif;
     background: radial-gradient(circle at right, #0b0f1a, #05070f);
     color: #e5e7eb;
-    width: 100%;
+    line-height: 1.6;
+
+    /* natural scrolling */
+    overflow-y: auto;
     overflow-x: hidden;
+
+    /* hide scrollbar UI */
+    scrollbar-width: none;          /* Firefox */
+    -ms-overflow-style: none;       /* Edge */
 }
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
 
 .history-root {
     display: flex;
@@ -23,26 +34,23 @@ body {
 }
 
 /* ===============================
+   GLOBAL CONTENT SHELL
+================================ */
+.history-shell {
+    overflow: hidden;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+/* ===============================
    HEADER
 ================================ */
 .history-header {
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 24px 32px;
+    padding: 24px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.history-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 32px 32px;
-
-    display: grid;
-    grid-template-columns: 620px 1fr; /* LEFT: scan | RIGHT: history */
-    gap: 32px;
 }
 
 .subtitle {
@@ -59,12 +67,10 @@ body {
    MAIN LAYOUT
 ================================ */
 .history-container {
-    width: 100%;
-    max-width: 1100px;
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 24px;
-    padding: 0 24px 24px;
+    grid-template-columns: 720px 1fr;
+    gap: 16px;              /* tight + intentional */
+    padding-bottom: 66px;  /* controlled */
 }
 
 @media (max-width: 900px) {
@@ -77,8 +83,9 @@ body {
    PANELS
 ================================ */
 .detail-panel {
-    position: sticky;
-    top: 24px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
     overflow: visible;
 }
 
@@ -88,6 +95,10 @@ body {
         rgba(15,23,42,0.96),
         rgba(2,6,23,0.96)
     );
+}
+
+.detail-panel h3 {
+    margin-bottom: 12px;
 }
 
 .detail-metadata {
@@ -100,20 +111,20 @@ body {
     background: rgba(16,20,36,0.95);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 24px;
+    padding: 18px 18px 0 18px;
 }
 
-.insight-row,
-.detail-row {
-    display: flex;
+.insight-row{
+        display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
     font-size: 14px;
+    min-height: 28px;
+    align-items: center;
 }
 
 .insights-panel {
-    padding: 18px;
+    padding: 18px 18px 0 18px;
 }
 
 .insights-panel h3 {
@@ -125,22 +136,32 @@ body {
     opacity: 0.9;
 }
 
+/* Reused actions strip (Insights + Scan) */
+.insights-actions {
+    margin-bottom: 12px;
+}
+
+.confidence-chart {
+    margin-top: 16px;
+    height: 120px;
+}
+
 /* ===============================
    DETAIL PANEL
 ================================ */
 .detail-image {
     width: 100%;
-    height: 240px;
+    height: 100%;
     object-fit: cover;
     border-radius: 14px;
     margin-bottom: 16px;
     background: #000;
+    display: none;
 }
 
 .disclaimer {
     font-size: 12px;
     opacity: 0.55;
-    margin-top: 14px;
 }
 
 /* ===============================
@@ -165,8 +186,8 @@ body {
 }
 
 .history-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255,255,255,0.18);
+    transform: translateY(-2px) scale(1.01);
+    border-color: rgba(255,255,255,0.25);
 }
 
 .history-thumb {
@@ -195,12 +216,29 @@ body {
 .history-left {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    height: 100%;
+    min-height: 0;
+
+    overflow-x: hidden;
+
+    position: relative;
+
+    /* 🔥 hide scrollbar everywhere */
+    scrollbar-width: none;          /* Firefox */
+    -ms-overflow-style: none;       /* IE/Edge */
+}
+
+.history-left::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
 }
 
 .history-right {
-    max-height: calc(100vh - 140px);
+    max-height: calc(100vh - 160px);
     overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
     padding-right: 6px;
 }
 
@@ -219,7 +257,6 @@ body {
 
 .danger-btn {
     width: 100%;
-    margin-top: 12px;
     background: #7f1d1d;
     border: none;
     border-radius: 10px;
@@ -227,15 +264,60 @@ body {
     color: #fff;
     cursor: pointer;
 }
+
+.panel.with-footer {
+    padding-bottom: 18px;
+}
+
 /* ===============================
-   DETAIL ACTIONS
+   ACTIONS (RESEARCH STYLE)
 ================================ */
 .detail-actions {
-    margin-top: 20px;
+    margin-top: 16px;
+    padding-top: 14px;
+    position: relative;
+    z-index: 2; /* ⬆️ above image wrapper */
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    position: relative;
+    gap: 10px;
+}
+
+.actions-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.55;
+    margin-bottom: 8px;
+}
+
+.actions-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Compact buttons */
+.actions-row .secondary-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+.danger-inline {
+    padding: 6px 10px;
+    font-size: 13px;
+    background: linear-gradient(180deg, #7f1d1d, #6b1414);
+}
+
+/* Metadata rows tighter */
+.detail-row {
+    min-height: 22px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    min-height: 24px;
+    align-items: center;
+    padding: 6px 0;
     z-index: 2;
 }
 
@@ -272,11 +354,13 @@ body {
     position: relative;
     height: 420px;
     border-radius: 16px;
-    background: #020617;
 
     /* IMPORTANT */
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
     overflow: hidden;
+    border-radius: 16px;
+    background: radial-gradient(circle at center, #020617, #000);
+    margin-bottom: 24px;
 }
 
 .detail-image {
@@ -293,13 +377,70 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
     color: rgba(255,255,255,0.55);
     text-align: center;
     font-size: 14px;
-    gap: 10px;
+    pointer-events: none;
 }
 
 .placeholder-icon {
     font-size: 28px;
     opacity: 0.6;
+}
+
+.comparison-row {
+    margin-top: 12px;
+    display: none;
+}
+
+.comparison-row img {
+    height: 240px;
+    border-radius: 12px;
+}
+
+@media print {
+    html, body {
+        background: white !important;
+        color: black !important;
+    }
+
+    /* Hide non-essential UI */
+    .history-right,
+    .header-actions,
+    .secondary-btn,
+    .danger-btn,
+    .detail-placeholder {
+        display: none !important;
+    }
+
+    /* Expand selected scan */
+    .detail-image-wrapper {
+        height: auto;
+    }
+
+    .detail-image {
+        display: block !important;
+        max-height: 500px;
+    }
+
+    .panel {
+        border: none !important;
+        box-shadow: none !important;
+        background: none !important;
+    }
+}
+
+.section-divider {
+    height: 1px;
+    background: linear-gradient(
+        to right,
+        rgba(255,255,255,0.02),
+        rgba(255,255,255,0.14),
+        rgba(255,255,255,0.02)
+    );
+
+    /* 👇 this is the key fix */
+    margin: 24px 0;      /* visual spacing */
+    padding: 0;          /* no fake height */
 }

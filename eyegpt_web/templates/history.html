@@ -9,7 +9,7 @@
 </head>
 
 <body>
-<div class="history-root">
+<div class="history-shell">
 
     <header class="history-header">
         <div>
@@ -28,7 +28,7 @@
         <section class="history-left">
 
             <!-- SESSION INSIGHTS -->
-            <div class="panel insights-panel">
+            <div class="panel insights-panel with-footer">
                 <h3>Session Insights</h3>
 
                 <div class="insight-row">
@@ -51,12 +51,22 @@
                 </form>
             </div>
 
+            <div class="section-divider"></div>
+
             <!-- SCAN DETAILS -->
             <div class="panel detail-panel" id="detailPanel">
                 <h3>Selected Scan</h3>
 
                 <div class="detail-image-wrapper" id="detailImageWrapper">
-                    <img id="detailImage" class="detail-image" alt="">
+                    <!-- Primary selected scan -->
+                    <img id="detailImage" class="detail-image" alt="Selected eye scan">
+
+                    <!-- Comparison image (hidden by default) -->
+                    <div class="comparison-row">
+                        <img id="compareImage" class="detail-image" alt="Comparison scan">
+                    </div>
+
+                    <!-- Empty state -->
                     <div class="detail-placeholder" id="detailPlaceholder">
                         <div class="placeholder-icon">🧠</div>
                         <p>Select a scan from history<br>to review AI screening results</p>
@@ -79,32 +89,31 @@
                 </div>
             </div>
 
+        <div class="section-divider"></div>
 
-            <div class="detail-actions">
+<div class="detail-actions">
 
-            <!-- Explainability -->
-            <div class="explainability-actions">
-                <button id="toggleXaiBtn" class="secondary-btn">
-                    Show visual explanation (Grad-CAM)
-                </button>
+    <div class="actions-label">Actions</div>
 
-                <a id="downloadGradcam" class="secondary-btn" download>
-                    Download visual explanation
-                </a>
-            </div>
+    <div class="actions-row">
+        <button id="toggleXaiBtn" class="secondary-btn">
+            Show visual explanation
+        </button>
 
-            <!-- Destructive -->
-            <form method="POST" id="deleteForm" class="delete-section">
-                <button class="danger-btn">Delete This Scan</button>
-            </form>
+        <a id="downloadGradcam" class="secondary-btn" download>
+            Download explanation
+        </a>
 
-            <!-- Safety -->
-            <p class="disclaimer">
-                For educational and research use only.  
-                This is not a medical diagnosis.
-            </p>
+        <button class="secondary-btn" onclick="window.print()">
+            Print
+        </button>
 
-            </div>
+        <button form="deleteForm" class="danger-btn danger-inline">
+            Delete
+        </button>
+    </div>
+
+</div>
 
         </section>
 
