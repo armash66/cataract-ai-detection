@@ -1,391 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>EyeGPT – Scan History</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>EyeGPT — Scan History</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-<style>
-/* ===============================
-   DRAWER
-================================ */
-.history-root {
-    display: flex;
-    justify-content: flex-end;
-    min-height: 100vh;
-    background: radial-gradient(circle at right, #0b0f1a, #05070f);
-}
-
-.history-container {
-    display: grid;
-    grid-template-columns: 420px 520px; /* DETAILS | HISTORY */
-    gap: 24px;
-    padding: 24px;
-}
-.scan-details {
-    background: rgba(16,20,36,0.95);
-    border-radius: 16px;
-    padding: 20px;
-    position: sticky;
-    top: 24px;
-    height: fit-content;
-}
-.detail-image {
-    width: 100%;
-    height: 280px;
-    object-fit: cover;
-    border-radius: 14px;
-    margin-bottom: 16px;
-}
-.history-drawer {
-    position: relative;   /* 🔥 change */
-    max-width: none;      /* 🔥 remove width limit */
-    width: 100%;
-    min-height: 100vh;
-    padding: 24px;
-}
-
-
-/* ===============================
-   SUMMARY
-================================ */
-.history-summary {
-    display: flex;
-    gap: 20px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 14px;
-    padding: 16px;
-    margin-bottom: 24px;
-}
-
-.summary-label { font-size: 12px; opacity: .6; }
-.summary-value { font-size: 18px; font-weight: 600; }
-
-/* ===============================
-   GRID
-================================ */
-.history-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 18px;
-}
-
-.history-card {
-    background: rgba(16,20,36,0.95);
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.08);
-    padding: 12px;
-    cursor: pointer;
-    transition: transform .2s ease;
-}
-
-.history-card:hover { transform: translateY(-3px); }
-
-.history-thumb {
-    width: 100%;
-    height: 150px;
-    border-radius: 10px;
-    object-fit: cover;
-    background: #000;
-}
-
-.history-info { margin-top: 10px; }
-.history-prediction { font-weight: 600; font-size: 14px; }
-.history-confidence { font-size: 13px; opacity: .8; }
-.history-time { font-size: 11px; opacity: .5; }
-
-/* ===============================
-   MODAL
-================================ */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.65);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-}
-
-.modal {
-    background: #0b0f1a;
-    border-radius: 16px;
-    width: 92%;
-    max-width: 820px;
-    padding: 22px;
-}
-
-.modal img {
-    width: 100%;
-    border-radius: 12px;
-    margin-bottom: 14px;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    color: #fff;
-    cursor: pointer;
-}
-
-.history-layout {
-    display: flex;
-    gap: 24px;
-    padding: 24px;
-}
-
-.history-list {
-    flex: 1;
-    min-width: 0;
-}
-
-.history-sidebar {
-    width: 420px;
-    flex-shrink: 0;
-}
-
-.history-left .panel {
-    margin-bottom: 20px;
-}
-
-.detail-image {
-    width: 100%;
-    border-radius: 12px;
-    margin-bottom: 14px;
-}
-
-.detail-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    margin-bottom: 8px;
-}
-
-.danger-btn {
-    background: #ef4444;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 10px;
-    width: 100%;
-}
-
-/* ===============================
-   CONFIDENCE RING
-================================ */
-.ring { width: 120px; height: 120px; margin: 12px auto; }
-.ring circle { fill:none; stroke-width:10; stroke-linecap:round; }
-.ring-bg { stroke: rgba(255,255,255,.1); }
-.ring-value { stroke-dasharray:314; stroke-dashoffset:314; transition:1.2s; }
-</style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='history.css') }}">
 </head>
 
 <body>
-<div class="history-drawer">
+<div class="history-root">
 
-<header class="header">
-    <div class="header-left">
-        <h1>EyeGPT</h1>
-        <span class="subtitle">Scan History</span>
-    </div>
-
-    <div style="display:flex;gap:10px;">
-        <a href="/" class="secondary-btn">← Back</a>
-        <form action="{{ url_for('clear_history') }}" method="POST">
-            <button class="secondary-btn">Clear</button>
-        </form>
-    </div>
-</header>
-
-<div class="history-summary">
-    <div>
-        <div class="summary-label">Total scans</div>
-        <div class="summary-value">{{ history|length }}</div>
-    </div>
-</div>
-<div class="history-layout">
-
-    <!-- LEFT PANEL -->
-    <aside class="history-left">
-
-        <!-- SESSION INSIGHTS -->
-        <div class="panel insights-panel">
-            <h3>Session Insights</h3>
-
-            <div class="insight">
-                <span>Total scans</span>
-                <strong>{{ history|length }}</strong>
-            </div>
-
-            <div class="insight">
-                <span>Normal</span>
-                <strong>{{ history | selectattr("prediction","equalto","Normal") | list | length }}</strong>
-            </div>
-
-            <div class="insight">
-                <span>Cataract</span>
-                <strong>{{ history | selectattr("prediction","equalto","Cataract") | list | length }}</strong>
-            </div>
-
-            <form action="{{ url_for('clear_history') }}" method="POST">
-                <button class="danger-btn">Clear All History</button>
-            </form>
+    <header class="history-header">
+        <div>
+            <h1>EyeGPT</h1>
+            <span class="subtitle">AI Scan History</span>
         </div>
 
-        <!-- SELECTED SCAN DETAILS -->
-        <div class="panel detail-panel" id="detailPanel">
-            <h3>Scan Details</h3>
+        <div class="header-actions">
+            <a href="/" class="secondary-btn">← Back</a>
+        </div>
+    </header>
 
-            <img id="detailImage" class="detail-image" src="">
+    <main class="history-container">
 
-            <div class="detail-row">
-                <span>Prediction</span>
-                <strong id="detailPrediction">—</strong>
+        <!-- LEFT COLUMN -->
+        <section class="history-left">
+
+            <!-- SESSION INSIGHTS -->
+            <div class="panel insights-panel">
+                <h3>Session Insights</h3>
+
+                <div class="insight-row">
+                    <span>Total scans</span>
+                    <strong>{{ history|length }}</strong>
+                </div>
+
+                <div class="insight-row">
+                    <span>Normal screenings</span>
+                    <strong>{{ history | selectattr("prediction","equalto","Normal") | list | length }}</strong>
+                </div>
+
+                <div class="insight-row">
+                    <span>Cataract screenings</span>
+                    <strong>{{ history | selectattr("prediction","equalto","Cataract") | list | length }}</strong>
+                </div>
+
+                <form action="{{ url_for('clear_history') }}" method="POST">
+                    <button class="danger-btn">Clear All History</button>
+                </form>
             </div>
 
-            <div class="detail-row">
-                <span>Confidence</span>
-                <strong id="detailConfidence">—</strong>
+            <!-- SCAN DETAILS -->
+            <div class="panel detail-panel" id="detailPanel">
+                <h3>Selected Scan</h3>
+
+                <div class="detail-image-wrapper" id="detailImageWrapper">
+                    <img id="detailImage" class="detail-image" alt="">
+                    <div class="detail-placeholder" id="detailPlaceholder">
+                        <div class="placeholder-icon">🧠</div>
+                        <p>Select a scan from history<br>to review AI screening results</p>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <span>AI screening result</span>
+                    <strong id="detailPrediction">—</strong>
+                </div>
+
+                <div class="detail-row">
+                    <span>Model confidence</span>
+                    <strong id="detailConfidence">—</strong>
+                </div>
+
+                <div class="detail-row">
+                    <span>Date & time</span>
+                    <span id="detailTime">—</span>
+                </div>
             </div>
 
-            <div class="detail-row">
-                <span>Date</span>
-                <span id="detailTime">—</span>
+
+            <div class="detail-actions">
+
+            <!-- Explainability -->
+            <div class="explainability-actions">
+                <button id="toggleXaiBtn" class="secondary-btn">
+                    Show visual explanation (Grad-CAM)
+                </button>
+
+                <a id="downloadGradcam" class="secondary-btn" download>
+                    Download visual explanation
+                </a>
             </div>
 
-            <button id="toggleXaiBtn" class="secondary-btn" onclick="toggleXAI()">
-                Show Grad-CAM
-            </button>
-
-            <a id="downloadGradcam" class="secondary-btn" download>
-                Download Grad-CAM
-            </a>
-
-            <form method="POST" id="deleteForm">
+            <!-- Destructive -->
+            <form method="POST" id="deleteForm" class="delete-section">
                 <button class="danger-btn">Delete This Scan</button>
             </form>
-        </div>
 
-    </aside>
+            <!-- Safety -->
+            <p class="disclaimer">
+                For educational and research use only.  
+                This is not a medical diagnosis.
+            </p>
 
-<div class="history-right">
-    <div class="history-grid">
-        {% for row in history %}
-        <div class="history-card"
-            data-id="{{ row.id }}"
-            data-image="{{ url_for('static', filename=row.image_path) }}"
-            data-gradcam="{{ url_for('static', filename=row.gradcam_path) }}"
-            data-prediction="{{ row.prediction }}"
-            data-confidence="{{ row.confidence }}"
-            data-time="{{ row.timestamp }}"
-            onclick="selectScan(this)">
-
-            <img src="{{ url_for('static', filename=row.image_path) }}" class="history-thumb">
-
-            <div class="history-info">
-                <div class="history-prediction">{{ row.prediction }}</div>
-                <div class="history-confidence">{{ row.confidence }}%</div>
             </div>
-        </div>
-        {% endfor %}
-    </div>
+
+        </section>
+
+        <!-- RIGHT COLUMN -->
+        <section class="history-right">
+            <div class="history-grid">
+
+                {% for row in history %}
+                <div class="history-card"
+                     data-id="{{ row.id }}"
+                     data-image="{{ url_for('static', filename=row.image_path) }}"
+                     data-gradcam="{{ url_for('static', filename=row.gradcam_path) }}"
+                     data-prediction="{{ row.prediction }}"
+                     data-confidence="{{ row.confidence }}"
+                     data-time="{{ row.timestamp }}">
+
+                    <img src="{{ url_for('static', filename=row.image_path) }}"
+                         class="history-thumb"
+                         alt="Eye scan thumbnail">
+
+                    <div class="history-info">
+                        <div class="history-prediction">{{ row.prediction }}</div>
+                        <div class="history-confidence">{{ row.confidence }}%</div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </section>
+
+    </main>
 </div>
 
-
-<!-- MODAL -->
-<div class="modal-overlay" id="modal">
-<div class="modal">
-    <div style="display:flex;justify-content:space-between;">
-        <h3 id="modalPrediction"></h3>
-        <button class="close-btn" onclick="closeModal()">✕</button>
-    </div>
-
-    <img id="modalImage">
-
-    <button class="secondary-btn" id="toggleXaiBtn" onclick="toggleXAI()" style="width:100%;">
-        Show Grad-CAM
-    </button>
-
-    <a id="downloadGradcam" class="secondary-btn" download
-       style="width:100%;display:block;text-align:center;margin-top:10px;">
-       Download Grad-CAM
-    </a>
-
-    <svg class="ring" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="50" class="ring-bg"/>
-        <circle cx="60" cy="60" r="50" class="ring-value" id="ringValue"/>
-    </svg>
-
-    <p id="modalConfidence" style="text-align:center;"></p>
-    <p id="modalTime" style="text-align:center;opacity:.6;"></p>
-</div>
-</div>
-
-<script>
-let modalOriginal="", modalGradcam="", showingGradcam=false;
-let originalSrc = "";
-let gradcamSrc = "";
-
-function openModalFromCard(card){
-    modalOriginal = card.dataset.image;
-    modalGradcam = card.dataset.gradcam;
-    showingGradcam = false;
-
-    document.getElementById("modal").style.display="flex";
-    document.getElementById("modalImage").src = modalOriginal;
-    document.getElementById("modalPrediction").innerText = card.dataset.prediction;
-    document.getElementById("modalConfidence").innerText = card.dataset.confidence+"% confidence";
-    document.getElementById("modalTime").innerText = card.dataset.time;
-    document.getElementById("downloadGradcam").href = modalGradcam;
-    document.getElementById("toggleXaiBtn").innerText = "Show Grad-CAM";
-
-    animateRing(card.dataset.confidence);
-}
-
-function selectScan(card) {
-    originalSrc = card.dataset.image;
-    gradcamSrc = card.dataset.gradcam;
-    showingGradcam = false;
-
-    document.getElementById("detailImage").src = originalSrc;
-    document.getElementById("detailPrediction").innerText = card.dataset.prediction;
-    document.getElementById("detailConfidence").innerText = card.dataset.confidence + "%";
-    document.getElementById("detailTime").innerText = card.dataset.time;
-
-    document.getElementById("downloadGradcam").href = gradcamSrc;
-
-    document.getElementById("deleteForm").action =
-        `/delete/${card.dataset.id}`;
-
-    document.getElementById("toggleXaiBtn").innerText = "Show Grad-CAM";
-}
-
-function toggleXAI() {
-    const img = document.getElementById("detailImage");
-
-    showingGradcam = !showingGradcam;
-    img.src = showingGradcam ? gradcamSrc : originalSrc;
-
-    document.getElementById("toggleXaiBtn").innerText =
-        showingGradcam ? "Show Original" : "Show Grad-CAM";
-}
-
-function animateRing(conf){
-    const ring=document.getElementById("ringValue");
-    const c=314;
-    ring.style.strokeDashoffset=c;
-    ring.style.stroke = conf>=75?"#5eead4":conf>=50?"#facc15":"#ef4444";
-    requestAnimationFrame(()=>ring.style.strokeDashoffset=c-(conf/100)*c);
-}
-
-function closeModal(){
-    document.getElementById("modal").style.display="none";
-}
-
-</script>
+<script src="{{ url_for('static', filename='history.js') }}"></script>
 </body>
 </html>
