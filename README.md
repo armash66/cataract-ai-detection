@@ -1,8 +1,8 @@
 # Cataract Eye Detection System
 
-An AI-based **cataract eye detection system** exploring how deep learning models can analyze eye images across different imaging modalities and present interpretable screening results through both programmatic pipelines and a web-based interface (EyeGPT).
+An **AI-based cataract eye detection system** exploring how deep learning models analyze eye images across different imaging modalities and present **interpretable cataract screening results** through both programmatic pipelines and a research-oriented web interface (**EyeGPT**).
 
-This repository contains **multiple independent pipelines**, each designed for a specific eye imaging modality, along with a **research-oriented UI application** for visualization and interaction.
+This repository contains multiple independent pipelines, each designed for a specific eye imaging modality, along with **EyeGPT**, which serves as the visualization and interaction layer for reviewing AI-based cataract screening outputs.
 
 ---
 
