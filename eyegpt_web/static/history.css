@@ -1,7 +1,38 @@
 /* ===============================
+   EYEGPT THEME SYSTEM
+================================ */
+
+:root {
+    /* Primary (Blue medical) */
+    --primary: #4da3ff;
+    --primary-soft: #6bbcff;
+
+    /* Accent (Cyan highlight) */
+    --accent: #5eead4;
+
+    /* Backgrounds */
+    --bg-main: #0b0f1a;
+    --bg-panel: rgba(16,20,36,0.95);
+    --bg-panel-soft: rgba(16,20,36,0.85);
+
+    /* Borders */
+    --border-subtle: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.14);
+
+    /* Text */
+    --text-main: #e6e8ee;
+    --text-muted: rgba(230,232,238,0.65);
+
+    /* Danger (ONLY destructive) */
+    --danger: #7f1d1d;
+    --danger-soft: #6b1414;
+}
+
+/* ===============================
    ROOT & THEME
 ================================ */
 html, body {
+    height: 100%;
     width: 100%;
     margin: 0;
     font-family: Inter, system-ui, sans-serif;
@@ -51,6 +82,13 @@ body::-webkit-scrollbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: rgba(10,14,25,0.85);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.header{
+    background: rgba(10,14,25,0.85);
+    border-bottom: 1px solid var(--border-subtle);
 }
 
 .subtitle {
@@ -70,6 +108,7 @@ body::-webkit-scrollbar {
     display: grid;
     grid-template-columns: 720px 1fr;
     gap: 16px;              /* tight + intentional */
+    margin-top: 24px;
     padding-bottom: 66px;  /* controlled */
 }
 
@@ -91,9 +130,9 @@ body::-webkit-scrollbar {
 
 .detail-panel {
     background: linear-gradient(
-        180deg,
-        rgba(15,23,42,0.96),
-        rgba(2,6,23,0.96)
+        90deg,
+        var(--primary),
+        var(--accent)
     );
 }
 
@@ -108,8 +147,8 @@ body::-webkit-scrollbar {
 }
 
 .panel {
-    background: rgba(16,20,36,0.95);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
     border-radius: 16px;
     padding: 18px 18px 0 18px;
 }
@@ -257,12 +296,17 @@ body::-webkit-scrollbar {
 
 .danger-btn {
     width: 100%;
-    background: #7f1d1d;
     border: none;
     border-radius: 10px;
     padding: 10px;
-    color: #fff;
     cursor: pointer;
+    .danger-btn {
+    background: linear-gradient(
+        180deg,
+        var(--danger),
+        var(--danger-soft)
+    );
+}
 }
 
 .panel.with-footer {

@@ -1,3 +1,6 @@
+{% set page_title = "AI Vision Analysis" %}
+{% set header_action = '<a href="/history" class="secondary-btn">Review History</a>' %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,51 +12,33 @@
           content="EyeGPT is an AI-assisted eye disease screening system for educational and research purposes only. Not a medical diagnostic tool.">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-    <style>
-        /* Image positioning */
-        .image-frame {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 14px;
-        }
-
-        .image-frame img {
-            max-width: 260px;
-            width: 100%;
-            border-radius: 8px;
-            /* ✅ FIX: REMOVED display:none */
-        }
-
-        /* Camera dropdown UX */
-        .camera-dropdown {
-            margin-top: 10px;
-            padding: 12px;
-            border: 1px dashed rgba(255,255,255,0.25);
-            display: none;
-        }
-
-        .camera-actions {
-            margin-top: 10px;
-        }
-    </style>
 </head>
 <body>
 
 <div class="app basic-ui">
 
     <!-- HEADER -->
-    <header class="header">
-        <div class="header-left">
-            <h1>EyeGPT</h1>
-            <span class="subtitle">AI Vision Analysis System</span>
-        </div>
+<header class="app-header">
+    <!-- LEFT -->
+    <div class="header-left">
+        <button class="brand-btn" id="drawerToggle">
+            EyeGPT
+        </button>
+    </div>
 
-        <div class="header-right">
-            <a href="/history" class="secondary-btn">Review History</a>
-        </div>
-    </header>
+    <!-- CENTER -->
+    <div class="header-center">
+        <span class="page-title">
+            {{ page_title }}
+        </span>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="header-right">
+        {{ header_action|safe }}
+    </div>
+</header>
+
 
     <!-- MAIN -->
     <main class="content">
@@ -202,7 +187,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 </script>
+    <style>
+        /* Image positioning */
+        .image-frame {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 14px;
+        }
 
+        .image-frame img {
+            max-width: 260px;
+            width: 100%;
+            border-radius: 8px;
+            /* ✅ FIX: REMOVED display:none */
+        }
+
+        /* Camera dropdown UX */
+        .camera-dropdown {
+            margin-top: 10px;
+            padding: 12px;
+            border: 1px dashed rgba(255,255,255,0.25);
+            display: none;
+        }
+
+        .camera-actions {
+            margin-top: 10px;
+        }
+    </style>
 <script src="{{ url_for('static', filename='camera.js') }}"></script>
 <script src="{{ url_for('static', filename='ui.js') }}"></script>
 

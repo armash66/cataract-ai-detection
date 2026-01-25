@@ -107,3 +107,20 @@ document.querySelectorAll(".history-card").forEach(card => {
         document.getElementById("detailImage").src = card.dataset.image;
     });
 });
+
+// Scroll-aware header (ChatGPT-style)
+document.addEventListener("DOMContentLoaded", () => {
+    const header = document.querySelector(".app-header");
+    if (!header) return;
+
+    const onScroll = () => {
+        if (window.scrollY > 8) {
+            header.classList.add("scrolled");
+        } else {
+            header.classList.remove("scrolled");
+        }
+    };
+
+    onScroll(); // run once on load
+    window.addEventListener("scroll", onScroll, { passive: true });
+});

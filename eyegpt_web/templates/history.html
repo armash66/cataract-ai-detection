@@ -1,3 +1,6 @@
+{% set page_title = "Scan History" %}
+{% set header_action = '<a href="/" class="secondary-btn">← Back</a>' %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,21 +9,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='history.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
+    <header class="app-header">
+    <!-- LEFT -->
+    <div class="header-left">
+        <button class="brand-btn" id="drawerToggle">
+            EyeGPT
+        </button>
+    </div>
+
+    <!-- CENTER -->
+    <div class="header-center">
+        <span class="page-title">
+            {{ page_title }}
+        </span>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="header-right">
+        {{ header_action|safe }}
+    </div>
+</header>
+
 <div class="history-shell">
-
-    <header class="history-header">
-        <div>
-            <h1>EyeGPT</h1>
-            <span class="subtitle">AI Scan History</span>
-        </div>
-
-        <div class="header-actions">
-            <a href="/" class="secondary-btn">← Back</a>
-        </div>
-    </header>
 
     <main class="history-container">
 

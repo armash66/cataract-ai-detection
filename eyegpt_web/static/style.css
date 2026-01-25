@@ -4,6 +4,36 @@
    ===================================================== */
 
 /* ===============================
+   EYEGPT THEME SYSTEM
+================================ */
+
+:root {
+    /* Primary (Blue medical) */
+    --primary: #4da3ff;
+    --primary-soft: #6bbcff;
+
+    /* Accent (Cyan highlight) */
+    --accent: #5eead4;
+
+    /* Backgrounds */
+    --bg-main: #0b0f1a;
+    --bg-panel: rgba(16,20,36,0.95);
+    --bg-panel-soft: rgba(16,20,36,0.85);
+
+    /* Borders */
+    --border-subtle: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.14);
+
+    /* Text */
+    --text-main: #e6e8ee;
+    --text-muted: rgba(230,232,238,0.65);
+
+    /* Danger (ONLY destructive) */
+    --danger: #7f1d1d;
+    --danger-soft: #6b1414;
+}
+
+/* ===============================
    BASE RESET
 ================================ */
 * {
@@ -13,8 +43,8 @@
 
 body {
     margin: 0;
-    background: #0b0f1a;
-    color: #e6e8ee;
+    background: radial-gradient(circle at right, #0b0f1a, #05070f);
+    color: var(--text-main);
     overflow-x: hidden;
 }
 
@@ -30,21 +60,6 @@ body {
 /* ===============================
    HEADER
 ================================ */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 18px 28px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    background: rgba(10,14,25,0.85);
-    backdrop-filter: blur(10px);
-}
-
-.header-left h1 {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 600;
-}
 
 .subtitle {
     font-size: 12px;
@@ -70,10 +85,10 @@ body {
    PANELS
 ================================ */
 .panel {
-    background: rgba(16,20,36,0.9);
-    border-radius: 14px;
+    background: var(--bg-panel);
+    border-radius: 16px;
     padding: 22px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid var(--border-subtle);
 }
 
 /* Subtle fade-in */
@@ -101,7 +116,11 @@ body {
     margin-top: 6px;
     width: 32px;
     height: 2px;
-    background: linear-gradient(90deg,#4da3ff,#6ef3c5);
+    background: linear-gradient(
+        90deg,
+        var(--primary),
+        var(--accent)
+    );
     opacity: 0.6;
 }
 
@@ -134,20 +153,26 @@ body {
     vertical-align: middle;
 }
 
+/* ===============================
+   RESULT STATES (UNIFIED)
+================================ */
+
 /* Normal result */
 .result-panel[data-result="normal"] .result-name {
-    color: #5eead4;
+    color: var(--accent);
 }
+
 .result-panel[data-result="normal"] {
-    box-shadow: 0 0 0 1px rgba(80,200,200,0.28);
+    box-shadow: 0 0 0 1px var(--accent-soft);
 }
 
 /* Cataract result */
 .result-panel[data-result="cataract"] .result-name {
-    color: #ff6b6b;
+    color: var(--danger);
 }
+
 .result-panel[data-result="cataract"] {
-    box-shadow: 0 0 0 1px rgba(255,80,80,0.28);
+    box-shadow: 0 0 0 1px var(--danger-soft);
 }
 
 /* ===============================
@@ -219,7 +244,20 @@ body {
 /* ===============================
    BUTTONS
 ================================ */
-.primary-btn,
+.primary-btn{
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s ease;
+        background: linear-gradient(
+        135deg,
+        var(--primary),
+        var(--accent)
+    );
+    color: #0b0f1a;
+}
 .secondary-btn {
     padding: 10px 14px;
     border-radius: 10px;
@@ -227,21 +265,13 @@ body {
     cursor: pointer;
     font-size: 13px;
     transition: all 0.2s ease;
-}
-
-.primary-btn {
-    background: linear-gradient(135deg,#4da3ff,#6ef3c5);
-    color: #0b0f1a;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-strong);
+    color: var(--text-main);
 }
 
 .primary-btn:hover {
     box-shadow: 0 0 0 2px rgba(110,243,197,0.35);
-}
-
-.secondary-btn {
-    background: rgba(255,255,255,0.05);
-    color: #e6e8ee;
-    border: 1px solid rgba(255,255,255,0.12);
 }
 
 .secondary-btn:hover {
@@ -407,4 +437,74 @@ body:not(.camera-live) .camera-controls {
 
 .camera-off video {
     display: none;
+}
+
+/* ===============================
+   UNIFIED APP HEADER (FINAL)
+================================ */
+/* ===============================
+   GLOBAL APP HEADER
+================================ */
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    height: 64px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+
+    padding: 0 28px;
+
+    background: rgba(10, 14, 25, 0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+
+    transition:
+        background 0.25s ease,
+        backdrop-filter 0.25s ease,
+        border-color 0.25s ease;
+}
+
+/* Header when page is scrolled */
+.app-header.scrolled {
+    background: rgba(10, 14, 25, 0.55);
+    backdrop-filter: blur(6px);
+    border-bottom-color: rgba(255,255,255,0.04);
+}
+
+/* LEFT */
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.brand-btn {
+    background: none;
+    border: none;
+    color: var(--text-main);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* CENTER */
+.header-center {
+    text-align: center;
+    pointer-events: none;
+}
+
+.page-title {
+    font-size: 14px;
+    line-height: 1;
+    opacity: 0.7;
+}
+
+/* RIGHT */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
