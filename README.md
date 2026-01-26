@@ -217,7 +217,6 @@ AI confidence scores reflect **model behavior**, not disease severity or certain
 
 **Armash Ansari**  
 
----
 
 ## Contributing
 
