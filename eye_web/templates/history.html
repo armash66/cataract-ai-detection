@@ -48,8 +48,8 @@
 
         <main class="main-content">
             <div class="history-layout">
-                <div class="history-left">
-                    <section class="panel history-detail">
+                <div class="history-col">
+                    <section class="panel history-detail history-insights">
                         <div class="panel-header">
                             <h2>Session Insights</h2>
                             <span class="panel-sub">Summary</span>
@@ -90,7 +90,7 @@
                         </form>
                     </section>
 
-                    <section class="panel history-detail" id="detailPanel">
+                    <section class="panel history-detail history-selected" id="detailPanel">
                         <div class="panel-header">
                             <h2>Selected Scan</h2>
                             <span class="panel-sub">Inspection</span>
@@ -159,11 +159,10 @@
                             <textarea placeholder="Add annotation (not saved)"></textarea>
                         </div>
                     </section>
+                    <form id="deleteForm" method="POST"></form>
                 </div>
 
-                <form id="deleteForm" method="POST"></form>
-
-                <div class="history-right">
+                <div class="history-col">
                     <section class="panel history-list">
                         <div class="panel-header">
                             <h2>Analysis Log</h2>

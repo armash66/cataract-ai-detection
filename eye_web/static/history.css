@@ -334,9 +334,15 @@ body {
 
 .history-layout {
     display: grid;
-    grid-template-columns: 320px minmax(0, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
     align-items: start;
+}
+
+.history-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .insight-row {
@@ -479,7 +485,6 @@ body {
 }
 
 .history-list {
-    max-height: calc(100vh - 180px);
     overflow-y: auto;
 }
 
@@ -601,12 +606,8 @@ body {
 
 @media (max-width: 1200px) {
     .history-layout {
-    display: grid;
-    grid-template-columns: 320px minmax(0, 1fr);
-    gap: 16px;
-    align-items: start;
-    height: 100%;
-}
+        grid-template-columns: 1fr;
+    }
 
     .history-list {
         max-height: none;
@@ -674,21 +675,16 @@ body {
 
 
 .history-left {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    display: contents;
 }
 
 .history-right {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    min-height: 0;
+    display: contents;
 }
 
 .history-list {
-    flex: 1;
-    min-height: 0;
+    max-height: none;
+    overflow-y: visible;
 }
 
 
