@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CataractGPT - System Settings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='history.css') }}">
+</head>
+
+<body class="theme-lab">
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="scanline" aria-hidden="true"></div>
+
+<div class="app">
+    <aside class="sidebar">
+        <div class="sidebar-head">
+            <div class="brand">CataractGPT</div>
+            <div class="brand-sub">Scan Lab Console</div>
+        </div>
+
+        <nav class="side-nav">
+            <a class="nav-item" href="/">New Analysis</a>
+            <a class="nav-item" href="/history">History</a>
+            <a class="nav-item" href="/protocols">Research Protocols</a>
+            <a class="nav-item active" href="/settings">System Settings</a>
+        </nav>
+
+        <div class="sidebar-foot">
+            <div class="status-dot"></div>
+            <div>
+                <div class="status-title">System Status: Online</div>
+                <div class="status-sub">Region: GCP-East-1</div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main">
+        <header class="topbar app-header">
+            <div class="topbar-left">
+                <div class="topbar-title">System Settings</div>
+                <div class="topbar-sub">Runtime Console</div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-pill">Live</div>
+                <div class="topbar-time" id="settingsTime">--:--</div>
+            </div>
+        </header>
+
+        <div class="model-strip">
+            <span class="model-strip-text">
+                <span class="model-strip-strong">Runtime Context:</span>
+                CataractNet v1.3 · Inference Mode: Accurate · Local Storage
+            </span>
+        </div>
+
+        <main class="main-content">
+            <div class="content-grid">
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>System Health</h2>
+                        <span class="panel-sub">Real-Time</span>
+                    </div>
+                    <div class="detail-grid">
+                        <div>
+                            <span class="meta-label">CPU Load</span>
+                            <span class="meta-value" id="cpuLoad">--%</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Memory</span>
+                            <span class="meta-value" id="memLoad">--%</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Disk</span>
+                            <span class="meta-value" id="diskLoad">--%</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">FPS</span>
+                            <span class="meta-value" id="fpsValue">60</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>Inference Controls</h2>
+                        <span class="panel-sub">Mock</span>
+                    </div>
+                    <div class="detail-grid">
+                        <div>
+                            <span class="meta-label">Model Selector</span>
+                            <span class="meta-value">CataractNet v1.3</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Mode</span>
+                            <span class="meta-value">Accurate</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Dataset</span>
+                            <span class="meta-value">Cataract-10K-v4</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Offline</span>
+                            <span class="meta-value">Enabled</span>
+                        </div>
+                    </div>
+                    <details class="detail-expand">
+                        <summary>Safety Notice</summary>
+                        <p>This panel is informational only. Changes are not persisted in this demo environment.</p>
+                    </details>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>Security & Privacy</h2>
+                        <span class="panel-sub">Local</span>
+                    </div>
+                    <ul class="explain-list">
+                        <li>Uploads stored locally for session history.</li>
+                        <li>No external API calls for inference.</li>
+                        <li>Clear history to remove saved records.</li>
+                    </ul>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>Live Toggles</h2>
+                        <span class="panel-sub">UI</span>
+                    </div>
+                    <div class="detail-grid">
+                        <div>
+                            <span class="meta-label">Theme</span>
+                            <span class="meta-value" id="themeState">Lab</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Telemetry</span>
+                            <span class="meta-value" id="telemetryState">Enabled</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Performance</span>
+                            <span class="meta-value" id="perfState">Balanced</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Storage</span>
+                            <span class="meta-value" id="storageState">Local</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+(function () {
+    const timeEl = document.getElementById("settingsTime");
+    const cpuEl = document.getElementById("cpuLoad");
+    const memEl = document.getElementById("memLoad");
+    const diskEl = document.getElementById("diskLoad");
+    const fpsEl = document.getElementById("fpsValue");
+    const themeEl = document.getElementById("themeState");
+
+    const update = () => {
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, "0");
+        timeEl.textContent = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+        cpuEl.textContent = `${Math.floor(35 + Math.random() * 30)}%`;
+        memEl.textContent = `${Math.floor(40 + Math.random() * 35)}%`;
+        diskEl.textContent = `${Math.floor(20 + Math.random() * 20)}%`;
+        fpsEl.textContent = `${Math.floor(55 + Math.random() * 6)}`;
+        themeEl.textContent = document.body.classList.contains("theme-light") ? "Light" : "Lab";
+    };
+
+    update();
+    setInterval(update, 1000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CataractGPT - Research Protocols</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='history.css') }}">
+</head>
+
+<body class="theme-lab">
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="scanline" aria-hidden="true"></div>
+
+<div class="app">
+    <aside class="sidebar">
+        <div class="sidebar-head">
+            <div class="brand">CataractGPT</div>
+            <div class="brand-sub">Scan Lab Console</div>
+        </div>
+
+        <nav class="side-nav">
+            <a class="nav-item" href="/">New Analysis</a>
+            <a class="nav-item" href="/history">History</a>
+            <a class="nav-item active" href="/protocols">Research Protocols</a>
+            <a class="nav-item" href="/settings">System Settings</a>
+        </nav>
+
+        <div class="sidebar-foot">
+            <div class="status-dot"></div>
+            <div>
+                <div class="status-title">System Status: Online</div>
+                <div class="status-sub">Region: GCP-East-1</div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main">
+        <header class="topbar app-header">
+            <div class="topbar-left">
+                <div class="topbar-title">Research Protocols</div>
+                <div class="topbar-sub">Operational Playbook</div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-pill">Live</div>
+                <div class="topbar-time" id="protocolTime">--:--</div>
+            </div>
+        </header>
+
+        <div class="model-strip">
+            <span class="model-strip-text">
+                <span class="model-strip-strong">Protocol Context:</span>
+                STD-CAT-04 · Explainability: Grad-CAM · Validation Set A
+            </span>
+        </div>
+
+        <main class="main-content">
+            <div class="content-grid">
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>Active Protocol</h2>
+                        <span class="panel-sub">STD-CAT-04</span>
+                    </div>
+                    <div class="detail-grid">
+                        <div>
+                            <span class="meta-label">Dataset</span>
+                            <span class="meta-value">Cataract-10K-v4</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Input</span>
+                            <span class="meta-value">Fundus / Anterior</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Explainability</span>
+                            <span class="meta-value">Grad-CAM</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Confidence Cal</span>
+                            <span class="meta-value">v1.2</span>
+                        </div>
+                    </div>
+                    <details class="detail-expand">
+                        <summary>Acceptance Criteria</summary>
+                        <p>Clear pupil visibility, centered lens region, and minimal glare. Images outside these constraints are flagged for low confidence.</p>
+                    </details>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>Live Telemetry</h2>
+                        <span class="panel-sub">Real-Time</span>
+                    </div>
+                    <div class="detail-grid">
+                        <div>
+                            <span class="meta-label">System Uptime</span>
+                            <span class="meta-value" id="protocolUptime">00:00:00</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Inference Queue</span>
+                            <span class="meta-value" id="queueDepth">0</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Avg Latency</span>
+                            <span class="meta-value" id="avgLatency">1.24s</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Capture Quality</span>
+                            <span class="meta-value" id="qualityStatus">Stable</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>Checklist</h2>
+                        <span class="panel-sub">Pre-Scan</span>
+                    </div>
+                    <ul class="explain-list">
+                        <li>Confirm consent and non-diagnostic disclaimer.</li>
+                        <li>Verify capture type (Fundus or Anterior).</li>
+                        <li>Review lighting and glare indicators.</li>
+                        <li>Record operator notes if quality warnings appear.</li>
+                    </ul>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>Limitations</h2>
+                        <span class="panel-sub">Disclosure</span>
+                    </div>
+                    <ul class="explain-list">
+                        <li>Not a clinical diagnosis tool.</li>
+                        <li>Performance varies by capture device and lighting.</li>
+                        <li>Model confidence is not disease severity.</li>
+                    </ul>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+(function () {
+    const timeEl = document.getElementById("protocolTime");
+    const uptimeEl = document.getElementById("protocolUptime");
+    const queueEl = document.getElementById("queueDepth");
+    const latencyEl = document.getElementById("avgLatency");
+    const qualityEl = document.getElementById("qualityStatus");
+    const start = Date.now();
+
+    const update = () => {
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, "0");
+        timeEl.textContent = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+        const elapsed = Math.floor((Date.now() - start) / 1000);
+        const hrs = Math.floor(elapsed / 3600);
+        const mins = Math.floor((elapsed % 3600) / 60);
+        const secs = elapsed % 60;
+        uptimeEl.textContent = `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
+
+        queueEl.textContent = String(Math.floor(Math.random() * 3));
+        latencyEl.textContent = `${(1 + Math.random() * 0.6).toFixed(2)}s`;
+        qualityEl.textContent = ["Stable", "Good", "Watch", "Glare"][(elapsed % 4)];
+    };
+
+    update();
+    setInterval(update, 1000);
+})();
+</script>
+</body>
+</html>
