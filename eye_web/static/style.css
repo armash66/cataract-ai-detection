@@ -259,11 +259,18 @@ body {
     gap: 18px;
 }
 
-.left-column,
+.left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 0;
+}
+
 .right-column {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    min-height: 0;
 }
 
 .panel {
@@ -476,8 +483,7 @@ body {
 .upload-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-}
+    gap: 16px;    min-height: 0;}
 
 .input-type {
     display: flex;
@@ -712,7 +718,7 @@ body {
 
 .camera-frame {
     width: 100%;
-    height: 260px;
+    height: 230px;
     background: #05070f;
     border-radius: 12px;
     overflow: hidden;
@@ -769,8 +775,7 @@ body {
 }
 
 .imaging-panel {
-    padding: 8px;
-}
+    padding: 8px;    flex: 1;    min-height: 0;}
 
 .imaging-head {
     display: flex;
@@ -1041,8 +1046,11 @@ body {
 
 @media (max-width: 1200px) {
     .content-grid {
-        grid-template-columns: 1fr;
-    }
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr);
+    gap: 18px;
+    height: 100%;
+}
 
     .main {
         margin-left: 0;
@@ -1083,8 +1091,10 @@ body {
     }
 
     .main-content {
-        padding: 16px;
-    }
+    padding: 18px 24px 24px;
+    height: calc(100vh - 120px);
+    overflow: hidden;
+}
 
     .imaging-grid {
         grid-template-columns: 1fr;
@@ -1092,3 +1102,6 @@ body {
     }
 
 }
+
+
+

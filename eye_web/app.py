@@ -86,6 +86,16 @@ def history():
     return render_template("history.html", history=rows)
 
 
+@app.route("/protocols")
+def protocols():
+    return render_template("protocols.html")
+
+
+@app.route("/settings")
+def settings():
+    return render_template("settings.html")
+
+
 @app.route("/history/clear", methods=["POST"])
 def clear_history():
     conn = get_db()
