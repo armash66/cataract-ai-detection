@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>EyeGPT - Scan History</title>
+    <title>CataractGPT - Scan History</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='history.css') }}">
 </head>
 
-<body>
+<body class="theme-lab">
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="scanline" aria-hidden="true"></div>
+
 <div class="app">
     <aside class="sidebar">
         <div class="sidebar-head">
-            <div class="brand">EyeGPT</div>
-            <div class="brand-sub">Clinical Screening System</div>
+            <div class="brand">CataractGPT</div>
+            <div class="brand-sub">Scan Lab Console</div>
         </div>
 
         <nav class="side-nav">
@@ -70,6 +73,17 @@
                         <canvas id="confidenceChart"></canvas>
                     </div>
 
+                    <div class="panel-header">
+                        <h2>Session Tools</h2>
+                        <span class="panel-sub">Controls</span>
+                    </div>
+
+                    <div class="tool-grid">
+                        <button class="btn btn-secondary" id="demoModeBtn" type="button">Demo Mode</button>
+                        <button class="btn btn-secondary" id="compactModeBtn" type="button">Compact Layout</button>
+                        <button class="btn btn-secondary" id="resetSessionBtn" type="button">Reset Session</button>
+                    </div>
+
                     <form action="{{ url_for('clear_history') }}" method="POST">
                         <button class="btn btn-danger">Clear All History</button>
                     </form>
@@ -109,10 +123,15 @@
                         <span id="detailTime">--</span>
                     </div>
 
+                    <div class="detail-row">
+                        <span>Severity</span>
+                        <span id="detailSeverity">--</span>
+                    </div>
+
                     <div class="detail-actions">
                         <div class="actions-label">Actions</div>
                         <div class="actions-row">
-                            <button id="toggleXaiBtn" class="btn btn-secondary">
+                            <button id="toggleXaiBtn" class="btn btn-secondary" type="button">
                                 Show visual explanation
                             </button>
 
@@ -120,7 +139,11 @@
                                 Download explanation
                             </a>
 
-                            <button class="btn btn-secondary" onclick="window.print()">
+                            <button id="copyDetailBtn" class="btn btn-secondary" type="button">
+                                Copy summary
+                            </button>
+
+                            <button class="btn btn-secondary" type="button" onclick="window.print()">
                                 Print
                             </button>
 
@@ -128,6 +151,11 @@
                                 Delete
                             </button>
                         </div>
+                    </div>
+
+                    <div class="notes-block">
+                        <div class="actions-label">Notes</div>
+                        <textarea placeholder="Add annotation (not saved)"></textarea>
                     </div>
                 </section>
 
@@ -161,6 +189,26 @@
                         {% endfor %}
                     </div>
                 </section>
+
+                <section class="panel chat-panel" id="chatPanel">
+                    <div class="panel-header">
+                        <h2>Assistant</h2>
+                        <span class="panel-sub">CataractGPT</span>
+                    </div>
+                    <div class="chat-body" id="chatBody">
+                        <div class="chat-message bot">Select a scan to ask about it.</div>
+                    </div>
+                    <div class="chat-suggestions" id="chatSuggestions">
+                        <button type="button" class="pill-btn">Explain confidence</button>
+                        <button type="button" class="pill-btn">Should I worry?</button>
+                        <button type="button" class="pill-btn">What did you see?</button>
+                    </div>
+                    <div class="chat-input-row">
+                        <input id="chatInput" type="text" placeholder="Ask a question...">
+                        <button id="chatSend" class="btn btn-primary" type="button">Send</button>
+                    </div>
+                </section>
+
             </div>
         </main>
     </div>

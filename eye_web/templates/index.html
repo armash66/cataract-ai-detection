@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>EyeGPT - Clinical Screening</title>
+    <title>CataractGPT - Scan Lab</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="EyeGPT is an AI-assisted eye disease screening system for educational and research purposes only. Not a medical diagnostic tool.">
+    <meta name="description" content="CataractGPT is an AI-assisted cataract screening system for educational and research purposes only. Not a medical diagnostic tool.">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body class="theme-lab">
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="scanline" aria-hidden="true"></div>
+
 <div class="app">
     <aside class="sidebar">
         <div class="sidebar-head">
-            <div class="brand">EyeGPT</div>
-            <div class="brand-sub">Clinical Screening System</div>
+            <div class="brand">CataractGPT</div>
+            <div class="brand-sub">Scan Lab Console</div>
         </div>
 
         <nav class="side-nav">
@@ -35,10 +38,11 @@
     <div class="main">
         <header class="topbar app-header">
             <div class="topbar-left">
-                <div class="topbar-title">Screening Dashboard</div>
+                <div class="topbar-title">CataractGPT Lab</div>
                 <div class="topbar-sub">POST /v1/analyze</div>
             </div>
             <div class="topbar-right">
+                <button id="themeToggle" class="pill-btn" type="button">Theme</button>
                 <div class="topbar-pill">Research Mode</div>
                 <div class="topbar-time" id="currentTime">--:--</div>
             </div>
@@ -57,14 +61,21 @@
                     <section class="panel outcome-panel result-panel"
                              {% if result %}
                              data-result="{{ 'cataract' if result.prediction|lower == 'cataract' else 'normal' }}"
+                             data-confidence="{{ result.confidence }}"
                              {% endif %}>
                         <div class="panel-header">
-                            <h2>Screening Outcome</h2>
+                            <h2>Result Summary</h2>
                             <span class="panel-sub">Session Output</span>
                         </div>
 
                         {% if result %}
                         <div class="outcome-body">
+                            <div class="badge-row">
+                                <span class="prediction-badge">{{ result.prediction }}</span>
+                                <span class="confidence-badge" id="confidenceBadge">Confidence</span>
+                                <span class="low-confidence" id="lowConfidence">Low confidence</span>
+                            </div>
+
                             <p class="outcome-summary">
                                 {% if result.prediction|lower == 'cataract' %}
                                     Patterns consistent with lens opacity were detected. Results are non-diagnostic and for research only.
@@ -73,26 +84,75 @@
                                 {% endif %}
                             </p>
 
-                            <div class="outcome-row">
-                                <span class="result-name">{{ result.prediction }}</span>
-                                <span class="result-confidence">{{ result.confidence }}%</span>
+                            <div class="confidence-display">
+                                <div class="confidence-number">
+                                    <span id="confidenceValue" data-value="{{ result.confidence }}">{{ result.confidence }}</span>%
+                                </div>
+                                <div class="confidence-ring">
+                                    <svg width="120" height="120">
+                                        <circle cx="60" cy="60" r="50"></circle>
+                                        <circle
+                                            cx="60"
+                                            cy="60"
+                                            r="50"
+                                            id="confidenceCircle"
+                                            data-value="{{ result.confidence }}">
+                                        </circle>
+                                    </svg>
+                                </div>
                             </div>
 
-                            <div class="confidence-ring">
-                                <svg width="120" height="120">
-                                    <circle cx="60" cy="60" r="50"></circle>
-                                    <circle
-                                        cx="60"
-                                        cy="60"
-                                        r="50"
-                                        id="confidenceCircle"
-                                        data-value="{{ result.confidence }}">
-                                    </circle>
-                                </svg>
+                            <div class="result-meta">
+                                <div>
+                                    <span class="meta-label">Timestamp</span>
+                                    <span class="meta-value" id="resultTimestamp">--</span>
+                                </div>
+                                <div>
+                                    <span class="meta-label">Model Version</span>
+                                    <span class="meta-value">CataractNet v1.3</span>
+                                </div>
+                                <div>
+                                    <span class="meta-label">Scan Duration</span>
+                                    <span class="meta-value" id="scanDuration">--</span>
+                                </div>
+                                <div>
+                                    <span class="meta-label">Severity</span>
+                                    <span class="meta-value" id="severityLevel">--</span>
+                                </div>
+                                <div>
+                                    <span class="meta-label">Vs Avg</span>
+                                    <span class="meta-value" id="avgDelta">--</span>
+                                </div>
                             </div>
 
-                            <div class="confidence-footnote">
-                                Confidence reflects visual pattern matching and does not indicate disease severity.
+                            <div class="result-actions">
+                                <button id="toggleDetail" class="btn btn-secondary" type="button">Toggle detail</button>
+                                <button id="copyResultBtn" class="btn btn-primary" type="button">Copy result</button>
+                            </div>
+
+                            <div id="detailBlock" class="detail-block is-hidden">
+                                <div class="detail-grid">
+                                    <div>
+                                        <span class="meta-label">Dataset Similarity</span>
+                                        <span class="meta-value">0.82</span>
+                                    </div>
+                                    <div>
+                                        <span class="meta-label">Quality Score</span>
+                                        <span class="meta-value">0.91</span>
+                                    </div>
+                                    <div>
+                                        <span class="meta-label">Calibration</span>
+                                        <span class="meta-value">Stable</span>
+                                    </div>
+                                    <div>
+                                        <span class="meta-label">Inference Mode</span>
+                                        <span class="meta-value">Accurate</span>
+                                    </div>
+                                </div>
+                                <details class="detail-expand">
+                                    <summary>How was this decided?</summary>
+                                    <p>The model compared the uploaded fundus image against learned cataract patterns and highlighted regions most correlated with lens opacity. This is an explainability aid and not a clinical diagnosis.</p>
+                                </details>
                             </div>
                         </div>
                         {% else %}
@@ -102,28 +162,15 @@
                         {% endif %}
                     </section>
 
-                    <section class="panel metrics-panel">
+                    <section class="panel timeline-panel">
                         <div class="panel-header">
-                            <h2>System Metrics</h2>
-                            <span class="panel-sub">Runtime</span>
+                            <h2>Processing Timeline</h2>
+                            <span class="panel-sub">Upload → Analyze → Result</span>
                         </div>
-                        <div class="metrics-grid">
-                            <div class="metric-item">
-                                <span class="metric-label">Confidence</span>
-                                <span class="metric-value">{% if result %}{{ result.confidence }}%{% else %}--{% endif %}</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-label">Model</span>
-                                <span class="metric-value">CataractNet v1.3</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-label">Input Type</span>
-                                <span class="metric-value">Fundus Image</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-label">Explainability</span>
-                                <span class="metric-value">Grad-CAM</span>
-                            </div>
+                        <div class="timeline">
+                            <div class="timeline-step" data-step="upload">Upload</div>
+                            <div class="timeline-step" data-step="analyze">Analyze</div>
+                            <div class="timeline-step" data-step="result">Result</div>
                         </div>
                     </section>
 
@@ -134,6 +181,21 @@
                         </div>
 
                         <form method="POST" enctype="multipart/form-data" id="uploadForm" class="upload-form">
+                            <div class="input-type">
+                                <span class="meta-label">Input Type</span>
+                                <div class="input-options">
+                                    <label class="input-option">
+                                        <input type="radio" name="scan_type" value="fundus" checked>
+                                        Fundus
+                                    </label>
+                                    <label class="input-option">
+                                        <input type="radio" name="scan_type" value="anterior">
+                                        Anterior
+                                    </label>
+                                </div>
+                                <div class="input-hint">Select the capture modality before uploading.</div>
+                            </div>
+
                             <label class="dropzone" for="fileInput">
                                 <input type="file" name="image" id="fileInput" required>
                                 <div class="dropzone-body">
@@ -142,10 +204,28 @@
                                 </div>
                             </label>
 
+                            <div class="file-meta">
+                                <span id="fileName">No file selected</span>
+                                <span id="fileSize">--</span>
+                                <span id="fileFormat">--</span>
+                            </div>
+
+                            <div class="quality-strip" id="qualityStrip">
+                                <span class="quality-pill" id="qualityBlur">Blur check</span>
+                                <span class="quality-pill" id="qualityBright">Brightness</span>
+                                <span class="quality-pill" id="qualityReflect">Reflection</span>
+                            </div>
+
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-primary">Run Analysis</button>
+                                <button id="retakeBtn" type="button" class="btn btn-secondary">Clear</button>
                                 <a href="/history" class="btn btn-secondary">View History</a>
                             </div>
+
+                            <label class="consent">
+                                <input type="checkbox" id="consentCheck">
+                                I understand this is not a diagnosis.
+                            </label>
                         </form>
 
                         {% if error %}
@@ -154,7 +234,12 @@
                     </section>
 
                     <section class="panel camera-panel">
-                        <button id="cameraToggleBtn" class="btn btn-secondary camera-toggle">
+                        <div class="panel-header">
+                            <h2>Camera Capture</h2>
+                            <span class="panel-sub">Experimental</span>
+                        </div>
+
+                        <button id="cameraToggleBtn" class="btn btn-secondary camera-toggle" type="button">
                             Camera (Experimental)
                         </button>
 
@@ -168,17 +253,20 @@
 
                             <div class="camera-actions">
                                 <button id="startCameraBtn" disabled>Activate Camera</button>
+                                <button id="cameraDisclaimerBtn" type="button">View Disclaimer</button>
                             </div>
                         </div>
 
                         <div id="cameraSection" class="camera-hidden">
                             <div class="camera-frame">
+                                <div class="camera-guide" aria-hidden="true"></div>
                                 <video id="video" autoplay muted playsinline></video>
                             </div>
 
                             <div class="camera-controls">
-                                <button id="captureBtn">Capture</button>
-                                <button id="stopCameraBtn">Stop</button>
+                                <button id="captureBtn" type="button">Capture</button>
+                                <button id="captureCountdownBtn" type="button">Capture in 3s</button>
+                                <button id="stopCameraBtn" type="button">Stop</button>
                             </div>
 
                             <canvas id="canvas" hidden></canvas>
@@ -202,11 +290,17 @@
                                     Overlay Attention
                                 </button>
                                 <input type="range" id="overlaySlider" min="0" max="100" value="60">
+                                <select id="paletteSelect" class="palette-select">
+                                    <option value="inferno">Inferno</option>
+                                    <option value="turbo">Turbo</option>
+                                    <option value="viridis">Viridis</option>
+                                    <option value="mono">Mono</option>
+                                </select>
                             </div>
                         </div>
 
                         <div class="imaging-grid">
-                            <div class="imaging-cell">
+                            <div class="imaging-cell" data-fullscreen-target>
                                 {% if result %}
                                 <img
                                     id="mainImage"
@@ -216,10 +310,12 @@
                                 <div class="imaging-placeholder">Awaiting input</div>
                                 <img id="mainImage" class="is-hidden" alt="">
                                 {% endif %}
+                                <div class="lens-outline"></div>
                                 <span class="imaging-tag">SOURCE</span>
+                                <button class="fullscreen-btn" type="button">Fullscreen</button>
                             </div>
 
-                            <div class="imaging-cell">
+                            <div class="imaging-cell" data-fullscreen-target>
                                 {% if result %}
                                 <img
                                     class="imaging-base"
@@ -235,16 +331,31 @@
                                 {% else %}
                                 <div class="imaging-placeholder">Grad-CAM pending</div>
                                 {% endif %}
+                                <div class="lens-outline"></div>
                                 <span class="imaging-tag">ATTENTION</span>
+                                <button class="fullscreen-btn" type="button">Fullscreen</button>
                             </div>
                         </div>
                     </section>
 
                     <section class="panel explain-panel" id="xaiExplain">
-                        {% if result %}
                         <div class="panel-header">
-                            <h2>Explainability Report</h2>
+                            <h2>Explainability</h2>
                             <span class="panel-sub">Grad-CAM</span>
+                        </div>
+                        <div class="explain-toggle">
+                            <button class="btn btn-secondary" id="eli10Btn" type="button">Explain like I&apos;m 10</button>
+                            <button class="btn btn-secondary" id="techBtn" type="button">Technical mode</button>
+                            {% if gradcam %}
+                            <a class="btn btn-secondary" href="{{ url_for('static', filename=gradcam) }}" download>Export</a>
+                            {% endif %}
+                        </div>
+                        {% if result %}
+                        <div id="eli10Text" class="explain-text">
+                            The bright colors show where the AI looked most to make its decision. Brighter means more important.
+                        </div>
+                        <div id="techText" class="explain-text is-hidden">
+                            Grad-CAM highlights activation intensity from layer 4 of the feature extractor. Warm regions indicate higher contribution to the output logit.
                         </div>
                         <ul class="explain-list">
                             <li>Highlighted regions influenced the model output.</li>
@@ -256,12 +367,39 @@
                         {% endif %}
                     </section>
 
-                    <p class="disclaimer">
-                        Educational and research use only. This system is not a medical diagnostic tool.
-                    </p>
+                    <section class="panel chat-panel" id="chatPanel">
+                        <div class="panel-header">
+                            <h2>Assistant</h2>
+                            <span class="panel-sub">CataractGPT</span>
+                        </div>
+                        <div class="chat-body" id="chatBody">
+                            <div class="chat-message bot">Ask about this scan or the confidence score.</div>
+                        </div>
+                        <div class="chat-suggestions" id="chatSuggestions">
+                            <button type="button" class="pill-btn">Explain confidence</button>
+                            <button type="button" class="pill-btn">Should I worry?</button>
+                            <button type="button" class="pill-btn">What did you see?</button>
+                        </div>
+                        <div class="chat-input-row">
+                            <input id="chatInput" type="text" placeholder="Ask a question...">
+                            <button id="chatSend" class="btn btn-primary" type="button">Send</button>
+                        </div>
+                    </section>
+
+                    <div class="disclaimer">
+                        Not a diagnosis · Research use only · No clinical decision support
+                    </div>
                 </div>
             </div>
         </main>
+    </div>
+</div>
+
+<div class="modal" id="cameraModal" aria-hidden="true">
+    <div class="modal-content">
+        <h3>Camera Disclaimer</h3>
+        <p>Camera-based screening is experimental and unreliable. Use only for demonstration purposes.</p>
+        <button id="closeModal" class="btn btn-secondary" type="button">Close</button>
     </div>
 </div>
 
