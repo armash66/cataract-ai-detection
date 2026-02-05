@@ -1,0 +1,287 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EyeGPT - Clinical Screening</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EyeGPT is an AI-assisted eye disease screening system for educational and research purposes only. Not a medical diagnostic tool.">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="sidebar-head">
+            <div class="brand">EyeGPT</div>
+            <div class="brand-sub">Clinical Screening System</div>
+        </div>
+
+        <nav class="side-nav">
+            <a class="nav-item active" href="/">New Analysis</a>
+            <a class="nav-item" href="/history">History</a>
+            <button class="nav-item is-disabled" disabled>Research Protocols</button>
+            <button class="nav-item is-disabled" disabled>System Settings</button>
+        </nav>
+
+        <div class="sidebar-foot">
+            <div class="status-dot"></div>
+            <div>
+                <div class="status-title">System Status: Online</div>
+                <div class="status-sub">Region: GCP-East-1</div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main">
+        <header class="topbar app-header">
+            <div class="topbar-left">
+                <div class="topbar-title">Screening Dashboard</div>
+                <div class="topbar-sub">POST /v1/analyze</div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-pill">Research Mode</div>
+                <div class="topbar-time" id="currentTime">--:--</div>
+            </div>
+        </header>
+
+        <div class="model-strip">
+            <span class="model-strip-text">
+                <span class="model-strip-strong">Model Context:</span>
+                Vision CNN (ResNet-50) · Float32 · Explainability: Grad-CAM · Dataset: Cataract-10K-v4
+            </span>
+        </div>
+
+        <main class="main-content">
+            <div class="content-grid">
+                <div class="left-column">
+                    <section class="panel outcome-panel result-panel"
+                             {% if result %}
+                             data-result="{{ 'cataract' if result.prediction|lower == 'cataract' else 'normal' }}"
+                             {% endif %}>
+                        <div class="panel-header">
+                            <h2>Screening Outcome</h2>
+                            <span class="panel-sub">Session Output</span>
+                        </div>
+
+                        {% if result %}
+                        <div class="outcome-body">
+                            <p class="outcome-summary">
+                                {% if result.prediction|lower == 'cataract' %}
+                                    Patterns consistent with lens opacity were detected. Results are non-diagnostic and for research only.
+                                {% else %}
+                                    No strong cataract-related patterns detected. Results are non-diagnostic and for research only.
+                                {% endif %}
+                            </p>
+
+                            <div class="outcome-row">
+                                <span class="result-name">{{ result.prediction }}</span>
+                                <span class="result-confidence">{{ result.confidence }}%</span>
+                            </div>
+
+                            <div class="confidence-ring">
+                                <svg width="120" height="120">
+                                    <circle cx="60" cy="60" r="50"></circle>
+                                    <circle
+                                        cx="60"
+                                        cy="60"
+                                        r="50"
+                                        id="confidenceCircle"
+                                        data-value="{{ result.confidence }}">
+                                    </circle>
+                                </svg>
+                            </div>
+
+                            <div class="confidence-footnote">
+                                Confidence reflects visual pattern matching and does not indicate disease severity.
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="outcome-empty">
+                            No active session. Upload an image to begin AI-assisted screening.
+                        </div>
+                        {% endif %}
+                    </section>
+
+                    <section class="panel metrics-panel">
+                        <div class="panel-header">
+                            <h2>System Metrics</h2>
+                            <span class="panel-sub">Runtime</span>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <span class="metric-label">Confidence</span>
+                                <span class="metric-value">{% if result %}{{ result.confidence }}%{% else %}--{% endif %}</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Model</span>
+                                <span class="metric-value">CataractNet v1.3</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Input Type</span>
+                                <span class="metric-value">Fundus Image</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Explainability</span>
+                                <span class="metric-value">Grad-CAM</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="panel upload-panel">
+                        <div class="panel-header">
+                            <h2>New Analysis</h2>
+                            <span class="panel-sub">Upload Input</span>
+                        </div>
+
+                        <form method="POST" enctype="multipart/form-data" id="uploadForm" class="upload-form">
+                            <label class="dropzone" for="fileInput">
+                                <input type="file" name="image" id="fileInput" required>
+                                <div class="dropzone-body">
+                                    <div class="dropzone-title">Select Image File</div>
+                                    <div class="dropzone-sub">Supports DICOM, PNG, JPEG</div>
+                                </div>
+                            </label>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Run Analysis</button>
+                                <a href="/history" class="btn btn-secondary">View History</a>
+                            </div>
+                        </form>
+
+                        {% if error %}
+                        <div class="error-box">{{ error }}</div>
+                        {% endif %}
+                    </section>
+
+                    <section class="panel camera-panel">
+                        <button id="cameraToggleBtn" class="btn btn-secondary camera-toggle">
+                            Camera (Experimental)
+                        </button>
+
+                        <div id="cameraDropdown" class="camera-dropdown">
+                            <p class="warning-text">Camera-based screening is unreliable.</p>
+
+                            <label class="ack-row">
+                                <input type="checkbox" id="ackCheckbox">
+                                I understand the limitations
+                            </label>
+
+                            <div class="camera-actions">
+                                <button id="startCameraBtn" disabled>Activate Camera</button>
+                            </div>
+                        </div>
+
+                        <div id="cameraSection" class="camera-hidden">
+                            <div class="camera-frame">
+                                <video id="video" autoplay muted playsinline></video>
+                            </div>
+
+                            <div class="camera-controls">
+                                <button id="captureBtn">Capture</button>
+                                <button id="stopCameraBtn">Stop</button>
+                            </div>
+
+                            <canvas id="canvas" hidden></canvas>
+                        </div>
+
+                        <img id="previewImage" class="preview-image" alt="Captured preview">
+                    </section>
+                </div>
+
+                <div class="right-column">
+                    <section class="panel imaging-panel">
+                        <div class="imaging-head">
+                            <div class="imaging-title">Imaging Analysis</div>
+                            <div class="imaging-controls">
+                                <button
+                                    id="gradToggleBtn"
+                                    class="btn btn-secondary"
+                                    {% if gradcam %}
+                                    data-gradcam="{{ url_for('static', filename=gradcam) }}"
+                                    {% endif %}>
+                                    Overlay Attention
+                                </button>
+                                <input type="range" id="overlaySlider" min="0" max="100" value="60">
+                            </div>
+                        </div>
+
+                        <div class="imaging-grid">
+                            <div class="imaging-cell">
+                                {% if result %}
+                                <img
+                                    id="mainImage"
+                                    src="{{ url_for('static', filename=original_image) }}"
+                                    alt="Eye image used for AI screening">
+                                {% else %}
+                                <div class="imaging-placeholder">Awaiting input</div>
+                                <img id="mainImage" class="is-hidden" alt="">
+                                {% endif %}
+                                <span class="imaging-tag">SOURCE</span>
+                            </div>
+
+                            <div class="imaging-cell">
+                                {% if result %}
+                                <img
+                                    class="imaging-base"
+                                    src="{{ url_for('static', filename=original_image) }}"
+                                    alt="Base image">
+                                {% if gradcam %}
+                                <img
+                                    id="gradOverlay"
+                                    class="imaging-overlay"
+                                    src="{{ url_for('static', filename=gradcam) }}"
+                                    alt="Grad-CAM overlay">
+                                {% endif %}
+                                {% else %}
+                                <div class="imaging-placeholder">Grad-CAM pending</div>
+                                {% endif %}
+                                <span class="imaging-tag">ATTENTION</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="panel explain-panel" id="xaiExplain">
+                        {% if result %}
+                        <div class="panel-header">
+                            <h2>Explainability Report</h2>
+                            <span class="panel-sub">Grad-CAM</span>
+                        </div>
+                        <ul class="explain-list">
+                            <li>Highlighted regions influenced the model output.</li>
+                            <li>Warm areas indicate stronger attention.</li>
+                            <li>Visualization is for transparency, not diagnosis.</li>
+                        </ul>
+                        {% else %}
+                        <div class="explain-empty">Upload an image to generate an explainability report.</div>
+                        {% endif %}
+                    </section>
+
+                    <p class="disclaimer">
+                        Educational and research use only. This system is not a medical diagnostic tool.
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+(function () {
+    const timeEl = document.getElementById("currentTime");
+    if (!timeEl) return;
+
+    const update = () => {
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, "0");
+        const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        timeEl.textContent = stamp;
+    };
+
+    update();
+    setInterval(update, 1000);
+})();
+</script>
+
+<script src="{{ url_for('static', filename='ui.js') }}"></script>
+</body>
+</html>

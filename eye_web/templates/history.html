@@ -1,0 +1,171 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EyeGPT - Scan History</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='history.css') }}">
+</head>
+
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="sidebar-head">
+            <div class="brand">EyeGPT</div>
+            <div class="brand-sub">Clinical Screening System</div>
+        </div>
+
+        <nav class="side-nav">
+            <a class="nav-item" href="/">New Analysis</a>
+            <a class="nav-item active" href="/history">History</a>
+            <button class="nav-item is-disabled" disabled>Research Protocols</button>
+            <button class="nav-item is-disabled" disabled>System Settings</button>
+        </nav>
+
+        <div class="sidebar-foot">
+            <div class="status-dot"></div>
+            <div>
+                <div class="status-title">System Status: Online</div>
+                <div class="status-sub">Region: GCP-East-1</div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main">
+        <header class="topbar app-header">
+            <div class="topbar-left">
+                <div class="topbar-title">Scan History</div>
+                <div class="topbar-sub">Review past AI screenings</div>
+            </div>
+            <div class="topbar-right">
+                <a href="/" class="btn btn-secondary">Back to New Analysis</a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="history-layout">
+                <section class="panel history-detail">
+                    <div class="panel-header">
+                        <h2>Session Insights</h2>
+                        <span class="panel-sub">Summary</span>
+                    </div>
+
+                    <div class="insight-row">
+                        <span>Total scans</span>
+                        <strong>{{ history|length }}</strong>
+                    </div>
+
+                    <div class="insight-row">
+                        <span>Normal screenings</span>
+                        <strong>{{ history | selectattr("prediction","equalto","Normal") | list | length }}</strong>
+                    </div>
+
+                    <div class="insight-row">
+                        <span>Cataract screenings</span>
+                        <strong>{{ history | selectattr("prediction","equalto","Cataract") | list | length }}</strong>
+                    </div>
+
+                    <div class="chart-wrap">
+                        <canvas id="confidenceChart"></canvas>
+                    </div>
+
+                    <form action="{{ url_for('clear_history') }}" method="POST">
+                        <button class="btn btn-danger">Clear All History</button>
+                    </form>
+                </section>
+
+                <section class="panel history-detail" id="detailPanel">
+                    <div class="panel-header">
+                        <h2>Selected Scan</h2>
+                        <span class="panel-sub">Inspection</span>
+                    </div>
+
+                    <div class="detail-image-wrapper" id="detailImageWrapper">
+                        <img id="detailImage" class="detail-image" alt="Selected eye scan">
+
+                        <div class="comparison-row">
+                            <img id="compareImage" class="detail-image" alt="Comparison scan">
+                        </div>
+
+                        <div class="detail-placeholder" id="detailPlaceholder">
+                            <div class="placeholder-icon">[scan]</div>
+                            <p>Select a scan from history to review AI screening results</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>AI screening result</span>
+                        <strong id="detailPrediction">--</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Model confidence</span>
+                        <strong id="detailConfidence">--</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Date and time</span>
+                        <span id="detailTime">--</span>
+                    </div>
+
+                    <div class="detail-actions">
+                        <div class="actions-label">Actions</div>
+                        <div class="actions-row">
+                            <button id="toggleXaiBtn" class="btn btn-secondary">
+                                Show visual explanation
+                            </button>
+
+                            <a id="downloadGradcam" class="btn btn-secondary" download>
+                                Download explanation
+                            </a>
+
+                            <button class="btn btn-secondary" onclick="window.print()">
+                                Print
+                            </button>
+
+                            <button form="deleteForm" class="btn btn-danger-inline">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <form id="deleteForm" method="POST"></form>
+
+                <section class="panel history-list">
+                    <div class="panel-header">
+                        <h2>Analysis Log</h2>
+                        <span class="panel-sub">{{ history|length }} Records</span>
+                    </div>
+
+                    <div class="history-grid">
+                        {% for row in history %}
+                        <div class="history-card"
+                             data-id="{{ row.id }}"
+                             data-image="{{ url_for('static', filename=row.image_path) }}"
+                             data-gradcam="{{ url_for('static', filename=row.gradcam_path) }}"
+                             data-prediction="{{ row.prediction }}"
+                             data-confidence="{{ row.confidence }}"
+                             data-time="{{ row.timestamp }}">
+
+                            <img src="{{ url_for('static', filename=row.image_path) }}"
+                                 class="history-thumb"
+                                 alt="Eye scan thumbnail">
+
+                            <div class="history-info">
+                                <div class="history-prediction">{{ row.prediction }}</div>
+                                <div class="history-confidence">{{ row.confidence }}%</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='history.js') }}"></script>
+</body>
+</html>

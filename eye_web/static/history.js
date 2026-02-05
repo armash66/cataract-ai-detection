@@ -1,8 +1,10 @@
-let originalSrc = "";
+﻿let originalSrc = "";
 let gradcamSrc = "";
 let showingGradcam = false;
 
-document.querySelectorAll(".history-card").forEach(card => {
+const cards = Array.from(document.querySelectorAll(".history-card"));
+
+cards.forEach(card => {
     card.addEventListener("click", () => selectScan(card));
 });
 
@@ -44,8 +46,8 @@ document.getElementById("toggleXaiBtn").addEventListener("click", () => {
             ? "Show original image"
             : "Show visual explanation (Grad-CAM)";
 });
+
 let currentIndex = -1;
-const cards = Array.from(document.querySelectorAll(".history-card"));
 
 document.addEventListener("keydown", (e) => {
     if (!cards.length) return;
@@ -63,8 +65,7 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
-const confidences = [...document.querySelectorAll(".history-card")]
-  .map(c => Number(c.dataset.confidence));
+const confidences = cards.map(c => Number(c.dataset.confidence));
 
 if (confidences.length) {
     const bins = Array(10).fill(0);
@@ -80,14 +81,14 @@ if (confidences.length) {
 
     bins.forEach((val, i) => {
         const barHeight = (val / max) * 100;
-        ctx.fillStyle = "rgba(255,255,255,0.35)";
+        ctx.fillStyle = "rgba(15, 23, 42, 0.15)";
         ctx.fillRect(i * 28, 110 - barHeight, 20, barHeight);
     });
 }
 
 let pinned = [];
 
-document.querySelectorAll(".history-card").forEach(card => {
+cards.forEach(card => {
     card.addEventListener("contextmenu", e => {
         e.preventDefault();
 
@@ -102,25 +103,8 @@ document.querySelectorAll(".history-card").forEach(card => {
     });
 });
 
-document.querySelectorAll(".history-card").forEach(card => {
+cards.forEach(card => {
     card.addEventListener("mouseenter", () => {
         document.getElementById("detailImage").src = card.dataset.image;
     });
-});
-
-// Scroll-aware header (ChatGPT-style)
-document.addEventListener("DOMContentLoaded", () => {
-    const header = document.querySelector(".app-header");
-    if (!header) return;
-
-    const onScroll = () => {
-        if (window.scrollY > 8) {
-            header.classList.add("scrolled");
-        } else {
-            header.classList.remove("scrolled");
-        }
-    };
-
-    onScroll(); // run once on load
-    window.addEventListener("scroll", onScroll, { passive: true });
 });
