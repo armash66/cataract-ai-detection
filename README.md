@@ -1,233 +1,106 @@
-# Cataract Eye Detection System
+﻿# CataractGPT: Research-Grade Cataract Screening and Explainability Suite
 
-An **AI-based cataract eye detection system** exploring how deep learning models analyze eye images across different imaging modalities and present **interpretable cataract screening results** through both programmatic pipelines and a research-oriented web interface (**EyeGPT**).
-
-This repository contains multiple independent pipelines, each designed for a specific eye imaging modality, along with **EyeGPT**, which serves as the visualization and interaction layer for reviewing AI-based cataract screening outputs.
-
----
-
-## Overview
-
-The project demonstrates how **different medical image modalities** require different preprocessing strategies, model architectures, and evaluation approaches.
-
-Currently, the system includes:
-
-- A **fundus image pipeline** for clinical retinal images  
-- An **anterior eye image pipeline** for front-facing / smartphone-style images  
-- A web-based research UI called **EyeGPT** for AI screening visualization  
-
-**Important Clarification:**
-- EyeGPT refers **only to the UI and web application layer**
-- The AI models operate independently of the UI
-- This project is strictly for **educational and research purposes**
+**Status:** Research prototype  
+**Scope:** Educational and research use only (not a medical diagnostic device)
 
 ---
 
-## Pipelines Included
-
-### 1. Fundus Image Pipeline (Clinical)
-
-**Input:** Retinal fundus images  
-**Use case:** Clinical and hospital environments  
-
-**Features:**
-- Dataset preprocessing for clinical fundus datasets  
-- CNN-based cataract detection  
-- Model training and evaluation  
-- Confusion matrix and performance metrics  
-- Confidence-based predictions  
-
-This pipeline focuses on **clinical-quality retinal images**, where cataract indicators are inferred from fundus characteristics.
+## Abstract
+CataractGPT is a research-oriented system for cataract screening from ocular imagery. It integrates a Flask-based inference UI, fundus/anterior pipelines, and Grad-CAM explainability. The project emphasizes transparency, reproducibility, and experiment-driven iteration, and is intended for academic exploration rather than clinical deployment.
 
 ---
 
-### 2. Anterior Eye Pipeline (Front-Facing Images)
-
-**Input:** Anterior (front-facing) eye images  
-**Use case:** Accessible screening (smartphone or camera-based images)  
-
-**Features:**
-- Binary cataract detection (Cataract vs Normal)  
-- Fine-tuned **MobileNetV2** (ImageNet pretrained)  
-- Confidence-based predictions  
-- Grad-CAM explainability to visualize model attention  
-- Designed for real-world, non-clinical image conditions  
-
-This pipeline emphasizes **accessibility and real-world usability**, making it suitable for future consumer-facing or screening applications.
-
----
-
-## EyeGPT Web Application (UI Layer)
-
-EyeGPT is a **research-oriented web application** that visualizes AI screening outputs in an interpretable and transparent manner.
-
-EyeGPT **does not perform diagnosis**. It only presents model outputs.
-
-**Current UI Features:**
-- Image upload–based AI screening  
-- Confidence-based prediction display  
-- Grad-CAM visual explanation toggle  
-- Scan history and review functionality  
-- Print-friendly review mode  
-- Research-grade, non-consumer UI design  
-
-⚠️ **Training Note:**  
-The underlying model used in EyeGPT was trained using **fundus eye images**, but **fundus-specific UI workflows are not yet implemented**.
-
----
-
-## Explainability (Grad-CAM)
-
-- Allows toggling between original images and Grad-CAM heatmaps  
-- Highlights regions influencing the model’s prediction  
-- Explicitly labeled as **visual explanation**, not diagnosis  
-- Intended to improve transparency and research interpretability  
-
----
-
-## Camera Input (Experimental)
-
-- Supports camera-based image capture  
-- Explicit warnings about unreliability  
-- Requires user acknowledgment before activation  
-- Grad-CAM disabled for camera images  
-
-This feature is experimental and **not clinically reliable**.
+## Contributions
+- End-to-end workflow: acquisition → inference → explainability → review
+- Separate pipelines for fundus and anterior modalities
+- Grad-CAM overlay with opacity and visualization controls
+- Lightweight history persistence with SQLite
+- Research-style interface for inspection and reporting
 
 ---
 
 ## Repository Structure
-
-```bash
-cataract-ai-detection/
-├── app.py                      # Flask application entry point (EyeGPT)
-├── templates/
-│   ├── index.html              # Main screening UI
-│   ├── history.html            # Scan history & review page
-├── static/
-│   ├── style.css               # Global UI styles
-│   ├── history.css             # History page styles
-│   ├── ui.js                   # UI interaction logic
-│   ├── camera.js               # Camera handling logic
-│   ├── images/                 # Stored scan images
-│   └── gradcam/                # Generated Grad-CAM outputs
-│
-├── fundus_pipeline/
-│   ├── dataset/
-│   │   ├── cataract/
-│   │   └── normal/
-│   ├── src/
-│   │   ├── prepare_dataset.py
-│   │   ├── train_model.py
-│   │   ├── evaluate_model.py
-│   │   ├── predict_with_confidence.py
-│   │   └── visualize_data.py
-│
-├── anterior_pipeline/
-│   ├── dataset/
-│   │   ├── cataract/
-│   │   └── normal/
-│   ├── src/
-│   │   ├── prepare_dataset.py
-│   │   ├── train_model.py
-│   │   ├── predict.py
-│   │   └── gradcam.py
-│
-├── model/
-│   ├── model.h5                # Trained AI model (optional)
-│   └── gradcam_utils.py        # Explainability utilities
-│
-├── requirements.txt
-└── README.md
 ```
-## Setup and Usage
-### Clone the Repository
-```bash
-git clone https://github.com/armash66/cataract-ai-detection.git
-cd cataract-ai-detection
+Cataract Detection/
+├─ eye_web/              # Flask web app (inference UI)
+│  ├─ app.py             # Server entrypoint
+│  ├─ templates/         # HTML templates
+│  ├─ static/            # CSS/JS/assets/uploads
+│  ├─ inference.py       # Inference helper
+│  └─ history.db         # SQLite history
+├─ fundus_pipeline/      # Fundus training/eval utilities
+├─ anterior_pipeline/    # Anterior pipeline utilities
+├─ uploads/              # Stored images
+├─ ui_v2/                # UI prototypes
+├─ eyegpt_web/           # React UI prototype
+└─ requirements.txt
 ```
-### Install Dependencies
-```bash
 
+---
+
+## System Overview
+**Data Flow**
+1. Image acquisition (upload or camera)
+2. Preprocessing and model inference
+3. Prediction + confidence estimation
+4. Grad-CAM explainability overlay
+5. Persistence to local history
+
+**Primary Outputs**
+- Class prediction (Normal / Cataract)
+- Confidence score
+- Grad-CAM attention map
+
+---
+
+## Quick Start
+```bash
 pip install -r requirements.txt
-```
-## Running the Pipelines
-### Fundus Pipeline
-```bash
-cd fundus_pipeline
-python prepare_dataset.py
-python train_model.py
-python evaluate_model.py
-python predict_with_confidence.py
-```
-### Anterior Eye Pipeline
-```bash
-cd anterior_pipeline
-python src/prepare_dataset.py
-python src/train_model.py
-python src/predict.py <path_to_image>
-python src/gradcam.py <path_to_image>
-```
-This will generate a Grad-CAM visualization highlighting regions influencing the prediction.
-
-### Running EyeGPT (Web UI)
-```bash
+cd eye_web
 python app.py
 ```
-Open your browser at:
-```bash
-http://127.0.0.1:5000
-```
+Open: `http://127.0.0.1:5000`
+
+---
+
+## Pipelines
+### Fundus Pipeline
+`fundus_pipeline/` contains training, evaluation, and dataset tooling for fundus imagery.
+
+### Anterior Pipeline
+`anterior_pipeline/` contains preprocessing and model utilities tailored to anterior segment imagery.
+
+---
+
+## UI Components
+- **Main Analysis:** upload, prediction, Grad-CAM overlay
+- **History:** record review with details and exports
+- **Protocols/Settings:** research dashboards (UI-only)
+
+---
+
+## Storage
+- Results persisted to `eye_web/history.db`
+- Images stored under `eye_web/static/uploads/`
+
+---
+
 ## Limitations
-
-- Dataset bias may affect predictions  
-- Fundus-specific UI workflows are not yet implemented  
-- Camera input is experimental and unreliable  
-- Grad-CAM highlights model attention, not pathology  
-- Performance metrics are not clinically benchmarked  
+- Not clinically validated
+- Performance depends on capture conditions
+- Explainability is indicative, not diagnostic
 
 ---
 
-## Future Work
-
-- Full fundus image workflow integration in EyeGPT  
-- Multi-class eye disease screening  
-- Improved dataset diversity  
-- Model performance evaluation (ROC, sensitivity, specificity)  
-- Exportable research reports  
-- UI accessibility enhancements  
-- Integration of LLM-based explanation (EyeGPT extension)  
+## Roadmap
+- Modality-aware routing (fundus vs anterior)
+- Automated quality gating (blur/glare)
+- Report export (PDF)
+- Model benchmarking + calibration reports
 
 ---
 
-## Medical and Ethical Disclaimer
-
-This project is strictly for **educational and research purposes only**.
-
-- Not a medical diagnostic tool  
-- Not clinically validated  
-- Not approved for patient use  
-- Must not be used for treatment or clinical decisions  
-
-AI confidence scores reflect **model behavior**, not disease severity or certainty.
+## Disclaimer
+CataractGPT is a **research prototype** and **not a medical device**. Use only for educational and experimental purposes.
 
 ---
-
-## Author
-
-**Armash Ansari**
-
----
-
-## Contributing
-
-Contributions are welcome.
-
-You may help by:
-- Improving model performance  
-- Adding support for additional eye diseases  
-- Enhancing explainability or evaluation  
-- Improving UI/UX  
-- Fixing bugs or documentation  
-
-Feel free to fork the repository and submit a pull request.
