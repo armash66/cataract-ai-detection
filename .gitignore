@@ -9,7 +9,12 @@ dataset/
 
 # models
 *.pth
+*.pt
 
 # python
 __pycache__/
 .cache/
+
+# frontend
+frontend/node_modules/
+frontend/dist/
