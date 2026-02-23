@@ -1,7 +1,7 @@
-const classes = ["Cataract", "Glaucoma", "Diabetic Retinopathy", "Normal", "Other"];
+const classes = ["Cataract", "Glaucoma", "Diabetic Retinopathy", "Normal"];
 const severities = ["mild", "moderate", "severe"];
 
-export function runMockInference(file) {
+export function runFallbackInference(file) {
   if (!file) return null;
 
   const base = classes.map((label) => ({ label, value: Math.random() }));
@@ -14,6 +14,7 @@ export function runMockInference(file) {
     topClass: probabilities[0].label,
     confidence: probabilities[0].value,
     severity: severities[Math.floor(Math.random() * severities.length)],
-    heatmapType: "Grad-CAM"
+    heatmapType: "Grad-CAM",
+    mode: "mock",
   };
 }
