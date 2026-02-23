@@ -1,0 +1,103 @@
+import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { Activity, Eye, FlaskConical } from "lucide-react";
+import UploadPanel from "./components/UploadPanel";
+import PredictionDashboard from "./components/PredictionDashboard";
+import RiskEstimator from "./components/RiskEstimator";
+import ThemeToggle from "./components/ThemeToggle";
+import ImagingPanel from "./components/ImagingPanel";
+import ExplainPanel from "./components/ExplainPanel";
+import { runMockInference } from "./utils/mockInference";
+import { computeRisk } from "./utils/riskEngine";
+
+const initialPatient = {
+  age: 45,
+  diabetes: false,
+  familyHistory: false,
+  symptoms: "mild_blur"
+};
+
+export default function App() {
+  const [image, setImage] = useState(null);
+  const [result, setResult] = useState(null);
+  const [theme, setTheme] = useState("dark");
+  const [patient, setPatient] = useState(initialPatient);
+
+  const risk = useMemo(() => {
+    if (!result) return null;
+    return computeRisk(result, patient);
+  }, [result, patient]);
+
+  const handleAnalyze = (file) => {
+    setImage(file || null);
+    setResult(file ? runMockInference(file) : null);
+  };
+
+  return (
+    <div className={`app-shell ${theme === "light" ? "theme-light" : ""}`}>
+      <aside className="sidebar">
+        <div className="sidebar-head">
+          <div className="brand">EyeGPT</div>
+          <div className="brand-sub">Retinal AI Console</div>
+        </div>
+        <nav className="side-nav">
+          <a className="nav-item active" href="#">New Analysis</a>
+          <a className="nav-item" href="#">Model Metrics</a>
+          <a className="nav-item" href="#">Explainability</a>
+          <a className="nav-item is-disabled" href="#">Clinical Notes</a>
+        </nav>
+        <div className="sidebar-foot">
+          <div className="status-dot" />
+          <div>
+            <div className="status-title">System: Online</div>
+            <div className="status-sub">Mode: Frontend Inference</div>
+          </div>
+        </div>
+      </aside>
+
+      <div className="main">
+        <header className="topbar">
+          <div>
+            <div className="topbar-title">EyeGPT Lab</div>
+            <div className="topbar-sub">Multi-disease screening and risk analysis</div>
+          </div>
+          <div className="topbar-right">
+            <span className="topbar-pill"><FlaskConical size={12} /> Research</span>
+            <span className="topbar-pill"><Activity size={12} /> Explainable</span>
+            <ThemeToggle theme={theme} onToggle={() => setTheme(theme === "light" ? "dark" : "light")} />
+          </div>
+        </header>
+
+        <div className="model-strip">
+          <span>Model Context: Ensemble-ready classifier · Multi-class · Grad-CAM overlay</span>
+        </div>
+
+        <main className="main-content">
+          <div className="content-grid">
+            <div className="left-column">
+              <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+                <UploadPanel onAnalyze={handleAnalyze} image={image} />
+              </motion.section>
+              <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
+                <PredictionDashboard result={result} />
+              </motion.section>
+              <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}>
+                <RiskEstimator patient={patient} onChange={setPatient} risk={risk} />
+              </motion.section>
+            </div>
+
+            <div className="right-column">
+              <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+                <ImagingPanel image={image} result={result} />
+              </motion.section>
+              <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                <ExplainPanel result={result} />
+              </motion.section>
+              <div className="disclaimer"><Eye size={14} /> Research use only. Not a diagnostic device.</div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
