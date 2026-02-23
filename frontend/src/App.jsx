@@ -36,7 +36,7 @@ export default function App() {
       setResult(null);
       return;
     }
-    const output = await runInference(file, { modelUrl: "/models/best_model.onnx" });
+    const output = await runInference(file, { modelUrl: "/models/best_accuracy.onnx" });
     setResult(output);
   };
 
@@ -84,10 +84,6 @@ export default function App() {
             />
           </div>
         </header>
-
-        <div className="model-strip">
-          Model Context: ONNX browser inference · Multi-class · Grad-CAM overlay
-        </div>
 
         <main className="main-content">
           <div className="content-grid">

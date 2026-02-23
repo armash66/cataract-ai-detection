@@ -1,8 +1,25 @@
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { jsPDF } from "jspdf";
+
+const CLASS_ORDER = ["Cataract", "Glaucoma", "Diabetic Retinopathy", "Normal"];
+
+function canonicalProbabilities(result) {
+  const map = new Map((result?.probabilities || []).map((p) => [p.label, Number(p.value) || 0]));
+  const raw = CLASS_ORDER.map((label) => ({ label, value: Math.max(0, map.get(label) || 0) }));
+  const sum = raw.reduce((acc, item) => acc + item.value, 0);
+
+  if (sum <= 0) {
+    const uniform = 1 / CLASS_ORDER.length;
+    return CLASS_ORDER.map((label) => ({ label, value: uniform }));
+  }
+
+  return raw.map((item) => ({ ...item, value: item.value / sum }));
+}
 
 function downloadPdfReport(result) {
   if (!result) return;
+  const probs = canonicalProbabilities(result);
+
   const doc = new jsPDF();
   doc.setFontSize(16);
   doc.text("EyeGPT-AI Screening Report", 14, 18);
@@ -13,7 +30,7 @@ function downloadPdfReport(result) {
   doc.text("Class Probabilities:", 14, 60);
 
   let y = 68;
-  result.probabilities.forEach((p) => {
+  probs.forEach((p) => {
     doc.text(`- ${p.label}: ${(p.value * 100).toFixed(2)}%`, 16, y);
     y += 7;
   });
@@ -23,6 +40,8 @@ function downloadPdfReport(result) {
 }
 
 export default function PredictionDashboard({ result }) {
+  const chartData = result ? canonicalProbabilities(result) : [];
+
   return (
     <div className="panel">
       <div className="panel-header">
@@ -38,18 +57,30 @@ export default function PredictionDashboard({ result }) {
             <span className="prediction-badge">{result.topClass}</span>
             <span className="confidence-badge">{Math.round(result.confidence * 100)}% confidence</span>
             <span className="confidence-badge">Severity: {result.severity}</span>
-            <button className="btn btn-secondary" type="button" onClick={() => downloadPdfReport(result)}>Download PDF</button>
+            <button className="btn btn-secondary badge-action" type="button" onClick={() => downloadPdfReport(result)}>
+              Download PDF
+            </button>
           </div>
 
           <div className="chart-wrap">
             <ResponsiveContainer>
-              <BarChart data={result.probabilities}>
-                <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+              <BarChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 10 }}>
+                <CartesianGrid stroke="rgba(148,163,184,0.18)" strokeDasharray="3 3" />
+                <XAxis dataKey="label" tick={{ fontSize: 11 }} interval={0} />
                 <YAxis domain={[0, 1]} tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Bar dataKey="value" fill="#38bdf8" radius={[6, 6, 0, 0]} />
+                <Tooltip formatter={(v) => `${(Number(v) * 100).toFixed(2)}%`} />
+                <Bar dataKey="value" fill="#38bdf8" radius={[6, 6, 0, 0]} minPointSize={2} />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+
+          <div className="prob-grid">
+            {chartData.map((p) => (
+              <div className="prob-item" key={p.label}>
+                <span>{p.label}</span>
+                <strong>{(p.value * 100).toFixed(1)}%</strong>
+              </div>
+            ))}
           </div>
         </>
       )}

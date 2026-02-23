@@ -14,20 +14,20 @@
 
 1. Merge and normalize labels:
 ```bash
-python ml/preprocessing/merge_and_normalize.py \
+python ml/data/merge_and_normalize.py \
   --csv ml/experiments/dataset1_labels.csv ml/experiments/dataset2_labels.csv \
   --out-dir ml/experiments/phase1
 ```
 
 2. Clean each split with quality gates (blur + brightness):
 ```bash
-python ml/preprocessing/clean_images.py --split-csv ml/experiments/phase1/splits/train.csv
-python ml/preprocessing/clean_images.py --split-csv ml/experiments/phase1/splits/val.csv
-python ml/preprocessing/clean_images.py --split-csv ml/experiments/phase1/splits/test.csv
+python ml/data/clean_images.py --split-csv ml/experiments/phase1/splits/train.csv
+python ml/data/clean_images.py --split-csv ml/experiments/phase1/splits/val.csv
+python ml/data/clean_images.py --split-csv ml/experiments/phase1/splits/test.csv
 ```
 
 3. Use augmentation module in training loaders:
-- `ml/preprocessing/augmentations.py`
+- `ml/data/augmentations.py`
 
 ## Split Strategy
 - Train: 70%
