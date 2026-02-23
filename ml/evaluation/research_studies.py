@@ -22,7 +22,7 @@ from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 from torchvision import io, transforms
 
 from ml.training.losses import make_loss
-from ml.training.model_factory import create_model, freeze_backbone, unfreeze_all
+from ml.models.model_factory import create_model, freeze_backbone, unfreeze_all
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
 
