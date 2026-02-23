@@ -9,7 +9,7 @@ import ThemeToggle from "./components/ThemeToggle";
 import ImagingPanel from "./components/ImagingPanel";
 import ExplainPanel from "./components/ExplainPanel";
 
-import { runMockInference } from "./utils/mockInference";
+import { runInference } from "./utils/inference";
 import { computeRisk } from "./utils/riskEngine";
 
 const initialPatient = {
@@ -30,9 +30,14 @@ export default function App() {
     return computeRisk(result, patient);
   }, [result, patient]);
 
-  const handleAnalyze = (file) => {
+  const handleAnalyze = async (file) => {
     setImage(file || null);
-    setResult(file ? runMockInference(file) : null);
+    if (!file) {
+      setResult(null);
+      return;
+    }
+    const output = await runInference(file, { modelUrl: "/models/best_model.onnx" });
+    setResult(output);
   };
 
   return (
@@ -54,7 +59,7 @@ export default function App() {
           <div className="status-dot" />
           <div>
             <div className="status-title">System: Online</div>
-            <div className="status-sub">Mode: Frontend Inference</div>
+            <div className="status-sub">Mode: Browser Inference</div>
           </div>
         </div>
       </aside>
@@ -81,7 +86,7 @@ export default function App() {
         </header>
 
         <div className="model-strip">
-          Model Context: Ensemble-ready classifier · Multi-class · Grad-CAM overlay
+          Model Context: ONNX browser inference · Multi-class · Grad-CAM overlay
         </div>
 
         <main className="main-content">
