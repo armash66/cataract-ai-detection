@@ -1,6 +1,7 @@
 """Reusable utilities for training/evaluation loops."""
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -94,6 +95,19 @@ def collect_predictions(model, loader, device: str):
             y_prob.extend(probs)
 
     return np.array(y_true), np.array(y_pred), np.array(y_prob)
+
+
+def benchmark_cpu_latency_ms(model, runs: int = 30) -> float:
+    model = model.to("cpu").eval()
+    x = torch.randn(1, 3, 224, 224)
+    with torch.no_grad():
+        for _ in range(5):
+            _ = model(x)
+    start = time.perf_counter()
+    with torch.no_grad():
+        for _ in range(runs):
+            _ = model(x)
+    return round(((time.perf_counter() - start) * 1000.0) / runs, 4)
 
 
 def save_training_curve(history: Dict[str, List[float]], out_file: Path) -> None:

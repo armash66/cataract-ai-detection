@@ -6,6 +6,7 @@ from torch import nn
 from ml.models.attention_cnn import CNNAttentionHybrid
 from ml.models.convnext import build_convnext_tiny
 from ml.models.efficientnet import build_efficientnet_b0, build_efficientnet_v2
+from ml.models.eyegptnet import EyeGPTNet
 from ml.models.mobilenet import build_mobilenet_v3
 from ml.models.resnet import build_resnet50
 from ml.models.vit import build_vit_b16
@@ -18,6 +19,7 @@ MODEL_NAMES = [
     "ViT",
     "ConvNeXt",
     "CNNAttentionHybrid",
+    "EyeGPTNet",
 ]
 
 
@@ -36,6 +38,8 @@ def create_model(name: str, num_classes: int, pretrained: bool = True) -> nn.Mod
         return build_convnext_tiny(num_classes, pretrained)
     if name == "CNNAttentionHybrid":
         return CNNAttentionHybrid(num_classes)
+    if name == "EyeGPTNet":
+        return EyeGPTNet(num_classes=num_classes)
     raise ValueError(f"Unsupported model: {name}")
 
 
@@ -49,7 +53,7 @@ def freeze_backbone(model: nn.Module, model_name: str) -> None:
     elif model_name == "ViT":
         for p in model.heads.parameters():
             p.requires_grad = True
-    elif model_name == "CNNAttentionHybrid":
+    elif model_name in {"CNNAttentionHybrid", "EyeGPTNet"}:
         for p in model.parameters():
             p.requires_grad = True
     else:

@@ -22,6 +22,7 @@ from ml.models.model_factory import (
     unfreeze_all,
 )
 from ml.training.trainer_utils import (
+    benchmark_cpu_latency_ms,
     collect_predictions,
     compute_class_weights,
     get_dataloaders,
@@ -50,17 +51,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def train_single_model(
-    model_name: str,
-    loaders,
-    output_dir: Path,
-    device: str,
-    epochs_freeze: int,
-    epochs_finetune: int,
-    lr: float,
-    patience: int,
-    loss_name: str,
-):
+def train_single_model(model_name: str, loaders, output_dir: Path, device: str, epochs_freeze: int, epochs_finetune: int, lr: float, patience: int, loss_name: str):
     train_loader, val_loader, test_loader, classes = loaders
     num_classes = len(classes)
 
@@ -116,6 +107,7 @@ def train_single_model(
 
     model_size_mb = best_weights.stat().st_size / (1024 * 1024)
     params = count_trainable_params(model)
+    cpu_ms = benchmark_cpu_latency_ms(model)
 
     metrics = {
         "model": model_name,
@@ -125,6 +117,7 @@ def train_single_model(
         "roc_auc_ovr": roc_auc,
         "params_trainable": int(params),
         "model_size_mb": round(float(model_size_mb), 4),
+        "cpu_inference_ms": cpu_ms,
         "loss": loss_name,
         "epochs_run": len(history["train_loss"]),
         "best_weights": str(best_weights),
@@ -135,7 +128,7 @@ def train_single_model(
 
 
 def save_comparison(rows: List[Dict], out_csv: Path) -> None:
-    fields = ["Model", "Accuracy", "F1", "ROC-AUC", "Params", "Model Size"]
+    fields = ["Model", "Accuracy", "F1", "ROC-AUC", "Params", "Model Size", "CPU(ms)"]
     out_csv.parent.mkdir(parents=True, exist_ok=True)
     with out_csv.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fields)
@@ -149,6 +142,7 @@ def save_comparison(rows: List[Dict], out_csv: Path) -> None:
                     "ROC-AUC": f"{row['roc_auc_ovr']:.4f}",
                     "Params": row["params_trainable"],
                     "Model Size": f"{row['model_size_mb']:.4f} MB",
+                    "CPU(ms)": row["cpu_inference_ms"],
                 }
             )
 
