@@ -32,7 +32,7 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
 from ml.training.losses import make_loss
-from ml.training.model_factory import (
+from ml.models.model_factory import (
     MODEL_NAMES,
     count_trainable_params,
     create_model,
