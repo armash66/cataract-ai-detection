@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Activity, Eye, FlaskConical } from "lucide-react";
+import { Camera, Eye, Sparkles } from "lucide-react";
 
 import UploadPanel from "./components/UploadPanel";
 import PredictionDashboard from "./components/PredictionDashboard";
@@ -19,7 +19,31 @@ const initialPatient = {
   symptoms: "mild_blur"
 };
 
+function Landing({ onStart, theme, onToggleTheme }) {
+  return (
+    <div className={`landing ${theme === "light" ? "theme-light" : ""}`}>
+      <header className="landing-topbar">
+        <div className="landing-brand"><Eye size={20} /> EyeGPT-AI</div>
+        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+      </header>
+
+      <main className="landing-main">
+        <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="hero">
+          <p className="hero-kicker">Research-grade Ophthalmology AI</p>
+          <h1>Multi-disease retinal screening, explainability, and browser inference.</h1>
+          <p className="hero-sub">Classify Cataract, Glaucoma, Diabetic Retinopathy, and Normal with model insights and risk estimation.</p>
+          <div className="hero-actions">
+            <button className="btn btn-primary" type="button" onClick={onStart}><Sparkles size={16} /> Start Analysis</button>
+            <button className="btn btn-secondary" type="button" onClick={onStart}><Camera size={16} /> Try Camera Mode</button>
+          </div>
+        </motion.section>
+      </main>
+    </div>
+  );
+}
+
 export default function App() {
+  const [page, setPage] = useState("landing");
   const [image, setImage] = useState(null);
   const [result, setResult] = useState(null);
   const [theme, setTheme] = useState("dark");
@@ -40,95 +64,33 @@ export default function App() {
     setResult(output);
   };
 
+  if (page === "landing") {
+    return <Landing onStart={() => setPage("analysis")} theme={theme} onToggleTheme={() => setTheme(theme === "light" ? "dark" : "light")} />;
+  }
+
   return (
-    <div className={`app-shell ${theme === "light" ? "theme-light" : ""}`}>
-      <aside className="sidebar">
-        <div className="sidebar-head">
-          <div className="brand">EyeGPT</div>
-          <div className="brand-sub">Retinal AI Console</div>
+    <div className={`analysis ${theme === "light" ? "theme-light" : ""}`}>
+      <header className="analysis-topbar">
+        <div className="analysis-brand"><Eye size={18} /> EyeGPT Lab</div>
+        <div className="analysis-actions">
+          <button className="btn btn-secondary" type="button" onClick={() => setPage("landing")}>Home</button>
+          <ThemeToggle theme={theme} onToggle={() => setTheme(theme === "light" ? "dark" : "light")} />
         </div>
+      </header>
 
-        <nav className="side-nav" aria-label="Primary Navigation">
-          <button className="nav-item active" type="button">New Analysis</button>
-          <button className="nav-item" type="button">Model Metrics</button>
-          <button className="nav-item" type="button">Explainability</button>
-          <button className="nav-item is-disabled" type="button">Clinical Notes</button>
-        </nav>
-
-        <div className="sidebar-foot">
-          <div className="status-dot" />
-          <div>
-            <div className="status-title">System: Online</div>
-            <div className="status-sub">Mode: Browser Inference</div>
+      <main className="analysis-main">
+        <div className="analysis-grid">
+          <div className="left-column">
+            <UploadPanel onAnalyze={handleAnalyze} image={image} />
+            <PredictionDashboard result={result} />
+            <RiskEstimator patient={patient} onChange={setPatient} risk={risk} />
+          </div>
+          <div className="right-column">
+            <ImagingPanel image={image} result={result} />
+            <ExplainPanel result={result} />
           </div>
         </div>
-      </aside>
-
-      <div className="main">
-        <header className="topbar">
-          <div>
-            <div className="topbar-title">EyeGPT Lab</div>
-            <div className="topbar-sub">Multi-disease screening and risk analysis</div>
-          </div>
-
-          <div className="topbar-right">
-            <span className="topbar-pill">
-              <FlaskConical size={12} /> Research
-            </span>
-            <span className="topbar-pill">
-              <Activity size={12} /> Explainable
-            </span>
-            <ThemeToggle
-              theme={theme}
-              onToggle={() => setTheme(theme === "light" ? "dark" : "light")}
-            />
-          </div>
-        </header>
-
-        <main className="main-content">
-          <div className="content-grid">
-            <div className="left-column">
-              <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-                <UploadPanel onAnalyze={handleAnalyze} image={image} />
-              </motion.section>
-
-              <motion.section
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.08 }}
-              >
-                <PredictionDashboard result={result} />
-              </motion.section>
-
-              <motion.section
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.16 }}
-              >
-                <RiskEstimator patient={patient} onChange={setPatient} risk={risk} />
-              </motion.section>
-            </div>
-
-            <div className="right-column">
-              <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-                <ImagingPanel image={image} result={result} />
-              </motion.section>
-
-              <motion.section
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <ExplainPanel result={result} />
-              </motion.section>
-
-              <div className="disclaimer">
-                <Eye size={14} /> Research use only. Not a diagnostic device.
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
+      </main>
     </div>
   );
 }
