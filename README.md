@@ -1,106 +1,70 @@
-﻿# CataractGPT: Research-Grade Cataract Screening and Explainability Suite
+# EyeGPT-AI
 
-**Status:** Research prototype  
-**Scope:** Educational and research use only (not a medical diagnostic device)
+Research-grade multi-architecture retinal disease classification benchmark with explainable AI and browser-ready deployment.
 
----
-
-## Abstract
-CataractGPT is a research-oriented system for cataract screening from ocular imagery. It integrates a Flask-based inference UI, fundus/anterior pipelines, and Grad-CAM explainability. The project emphasizes transparency, reproducibility, and experiment-driven iteration, and is intended for academic exploration rather than clinical deployment.
-
----
-
-## Contributions
-- End-to-end workflow: acquisition → inference → explainability → review
-- Separate pipelines for fundus and anterior modalities
-- Grad-CAM overlay with opacity and visualization controls
-- Lightweight history persistence with SQLite
-- Research-style interface for inspection and reporting
-
----
+## Scope
+- Multi-disease classes: Cataract, Glaucoma, Diabetic Retinopathy, Normal
+- Multi-model training and benchmarking
+- Custom lightweight model design: EyeGPTNet
+- Explainability (Grad-CAM)
+- ONNX export and browser inference path
 
 ## Repository Structure
+```text
+EyeGPT-AI/
++-- ml/
+�   +-- data/
+�   +-- models/
+�   +-- training/
+�   +-- evaluation/
+�   +-- explainability/
+�   +-- export/
+�   +-- experiments/
+�   +-- utils/
++-- model_registry/
++-- frontend/
++-- docs/
++-- README.md
 ```
-Cataract Detection/
-├─ eye_web/              # Flask web app (inference UI)
-│  ├─ app.py             # Server entrypoint
-│  ├─ templates/         # HTML templates
-│  ├─ static/            # CSS/JS/assets/uploads
-│  ├─ inference.py       # Inference helper
-│  └─ history.db         # SQLite history
-├─ fundus_pipeline/      # Fundus training/eval utilities
-├─ anterior_pipeline/    # Anterior pipeline utilities
-├─ uploads/              # Stored images
-├─ ui_v2/                # UI prototypes
-├─ eyegpt_web/           # React UI prototype
-└─ requirements.txt
-```
 
----
-
-## System Overview
-**Data Flow**
-1. Image acquisition (upload or camera)
-2. Preprocessing and model inference
-3. Prediction + confidence estimation
-4. Grad-CAM explainability overlay
-5. Persistence to local history
-
-**Primary Outputs**
-- Class prediction (Normal / Cataract)
-- Confidence score
-- Grad-CAM attention map
-
----
-
-## Quick Start
+## Training Workflow
+1. Build dataset manifests and splits:
 ```bash
-pip install -r requirements.txt
-cd eye_web
-python app.py
+python ml/data/merge_and_normalize.py
+python ml/data/clean_images.py --split-csv ml/experiments/phase1/splits/train.csv
+python ml/data/clean_images.py --split-csv ml/experiments/phase1/splits/val.csv
+python ml/data/clean_images.py --split-csv ml/experiments/phase1/splits/test.csv
 ```
-Open: `http://127.0.0.1:5000`
+2. Train and benchmark models:
+```bash
+python ml/training/train_and_benchmark.py --models EfficientNetB0 ResNet50 ViT EyeGPTNet
+```
+3. Run research studies:
+```bash
+python ml/training/cross_validation.py
+python ml/training/ablation_study.py
+```
 
----
+## Export Workflow
+```bash
+python ml/export/export_models.py
+python ml/evaluation/performance_benchmark.py
+```
+Artifacts are written to `model_registry/`.
 
-## Pipelines
-### Fundus Pipeline
-`fundus_pipeline/` contains training, evaluation, and dataset tooling for fundus imagery.
+## Frontend (EyeGPT)
+```bash
+cd frontend
+npm install
+npm run dev
+```
+- Uses real ONNX browser inference when `/models/best_model.onnx` is available.
+- Falls back to deterministic mock inference if model/runtime is unavailable.
 
-### Anterior Pipeline
-`anterior_pipeline/` contains preprocessing and model utilities tailored to anterior segment imagery.
-
----
-
-## UI Components
-- **Main Analysis:** upload, prediction, Grad-CAM overlay
-- **History:** record review with details and exports
-- **Protocols/Settings:** research dashboards (UI-only)
-
----
-
-## Storage
-- Results persisted to `eye_web/history.db`
-- Images stored under `eye_web/static/uploads/`
-
----
-
-## Limitations
-- Not clinically validated
-- Performance depends on capture conditions
-- Explainability is indicative, not diagnostic
-
----
-
-## Roadmap
-- Modality-aware routing (fundus vs anterior)
-- Automated quality gating (blur/glare)
-- Report export (PDF)
-- Model benchmarking + calibration reports
-
----
+## Explainability
+- Grad-CAM generation: `ml/explainability/gradcam.py`
+- Transparent heatmaps: `ml/explainability/heatmap_utils.py`
+- UI overlay controls: `frontend/src/components/ImagingPanel.jsx`
 
 ## Disclaimer
-CataractGPT is a **research prototype** and **not a medical device**. Use only for educational and experimental purposes.
-
----
+Educational and research project only. Not a medical device and not a clinical diagnostic system.
