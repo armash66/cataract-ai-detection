@@ -1,21 +1,26 @@
 # EyeGPT-AI Architecture
 
-## Identity
-EyeGPT-AI is a research-grade multi-architecture retinal disease benchmark with explainability and browser-ready deployment.
+## System Diagram
 
-## Pipeline
-1. Data merge, normalization, and quality gating (`ml/data/`).
-2. Multi-model training and benchmarking (`ml/models/`, `ml/training/`, `ml/evaluation/`).
-3. Research studies (cross-validation and ablation) in `ml/experiments/`.
-4. Explainability generation via Grad-CAM (`ml/explainability/`).
-5. Export and deployment packaging (`ml/export/`, `model_registry/`).
-6. Browser inference and interactive analysis UI (`frontend/`).
+```mermaid
+flowchart TD
+  A[Dataset Sources] --> B[ml/data]
+  B --> C[ml/models + ml/training]
+  C --> D[ml/evaluation]
+  C --> E[ml/explainability]
+  C --> F[ml/export]
+  D --> G[model_registry]
+  E --> G
+  F --> G
+  G --> H[frontend inference + UI]
+```
 
-## Core Models
-- Transfer learning: EfficientNetB0, ResNet50, ViT, EfficientNetV2, ConvNeXt, MobileNetV3
-- Custom lightweight: EyeGPTNet (<5M parameters target)
-
-## Deployment Contract
-- Input: RGB image, 224x224 normalized to [0,1], NCHW
-- Output: logits for 4 classes (Cataract, Glaucoma, Diabetic Retinopathy, Normal)
-- Browser runtime: `onnxruntime-web`
+## Components
+- `ml/data`: merge, normalize, quality filtering, split and summaries
+- `ml/models`: transfer-learning backbones + custom EyeGPTNet
+- `ml/training`: benchmark, cross-validation, ablation
+- `ml/evaluation`: metrics, confusion, ROC, benchmark helpers
+- `ml/explainability`: Grad-CAM and heatmap export tools
+- `ml/export`: ONNX/quantized export and artifact benchmarking
+- `model_registry`: stable deployment artifacts and metadata
+- `frontend`: EyeGPT browser inference interface
