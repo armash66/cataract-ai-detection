@@ -1,0 +1,10 @@
+{
+  "registry_version": "1.0",
+  "project": "EyeGPT",
+  "best_model": "best_model.pt",
+  "sources": {
+    "legacy_consolidated": "model_exports/all_trained_models",
+    "experiments": "ml/experiments"
+  },
+  "notes": "Model registry stores stable artifacts for deployment and frontend inference."
+}
