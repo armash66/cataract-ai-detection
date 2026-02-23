@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Activity, Eye, FlaskConical } from "lucide-react";
+
 import UploadPanel from "./components/UploadPanel";
 import PredictionDashboard from "./components/PredictionDashboard";
 import RiskEstimator from "./components/RiskEstimator";
 import ThemeToggle from "./components/ThemeToggle";
 import ImagingPanel from "./components/ImagingPanel";
 import ExplainPanel from "./components/ExplainPanel";
+
 import { runMockInference } from "./utils/mockInference";
 import { computeRisk } from "./utils/riskEngine";
 
@@ -40,12 +42,14 @@ export default function App() {
           <div className="brand">EyeGPT</div>
           <div className="brand-sub">Retinal AI Console</div>
         </div>
-        <nav className="side-nav">
-          <a className="nav-item active" href="#">New Analysis</a>
-          <a className="nav-item" href="#">Model Metrics</a>
-          <a className="nav-item" href="#">Explainability</a>
-          <a className="nav-item is-disabled" href="#">Clinical Notes</a>
+
+        <nav className="side-nav" aria-label="Primary Navigation">
+          <button className="nav-item active" type="button">New Analysis</button>
+          <button className="nav-item" type="button">Model Metrics</button>
+          <button className="nav-item" type="button">Explainability</button>
+          <button className="nav-item is-disabled" type="button">Clinical Notes</button>
         </nav>
+
         <div className="sidebar-foot">
           <div className="status-dot" />
           <div>
@@ -61,15 +65,23 @@ export default function App() {
             <div className="topbar-title">EyeGPT Lab</div>
             <div className="topbar-sub">Multi-disease screening and risk analysis</div>
           </div>
+
           <div className="topbar-right">
-            <span className="topbar-pill"><FlaskConical size={12} /> Research</span>
-            <span className="topbar-pill"><Activity size={12} /> Explainable</span>
-            <ThemeToggle theme={theme} onToggle={() => setTheme(theme === "light" ? "dark" : "light")} />
+            <span className="topbar-pill">
+              <FlaskConical size={12} /> Research
+            </span>
+            <span className="topbar-pill">
+              <Activity size={12} /> Explainable
+            </span>
+            <ThemeToggle
+              theme={theme}
+              onToggle={() => setTheme(theme === "light" ? "dark" : "light")}
+            />
           </div>
         </header>
 
         <div className="model-strip">
-          <span>Model Context: Ensemble-ready classifier · Multi-class · Grad-CAM overlay</span>
+          Model Context: Ensemble-ready classifier · Multi-class · Grad-CAM overlay
         </div>
 
         <main className="main-content">
@@ -78,10 +90,20 @@ export default function App() {
               <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
                 <UploadPanel onAnalyze={handleAnalyze} image={image} />
               </motion.section>
-              <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
+
+              <motion.section
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.08 }}
+              >
                 <PredictionDashboard result={result} />
               </motion.section>
-              <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}>
+
+              <motion.section
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.16 }}
+              >
                 <RiskEstimator patient={patient} onChange={setPatient} risk={risk} />
               </motion.section>
             </div>
@@ -90,10 +112,18 @@ export default function App() {
               <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
                 <ImagingPanel image={image} result={result} />
               </motion.section>
-              <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+
+              <motion.section
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
                 <ExplainPanel result={result} />
               </motion.section>
-              <div className="disclaimer"><Eye size={14} /> Research use only. Not a diagnostic device.</div>
+
+              <div className="disclaimer">
+                <Eye size={14} /> Research use only. Not a diagnostic device.
+              </div>
             </div>
           </div>
         </main>
