@@ -10,10 +10,34 @@ export default function UploadPanel({ onAnalyze, image }) {
   const [quality, setQuality] = useState(null);
   const [stream, setStream] = useState(null);
   const [cameraOn, setCameraOn] = useState(false);
+  const [cameraError, setCameraError] = useState("");
 
-  useEffect(() => () => {
-    if (stream) stream.getTracks().forEach((t) => t.stop());
+  useEffect(() => {
+    if (!stream || !videoRef.current) return;
+
+    const video = videoRef.current;
+    video.srcObject = stream;
+
+    const onLoaded = async () => {
+      try {
+        await video.play();
+      } catch (_) {
+        setCameraError("Camera stream started but playback was blocked. Tap Capture after allowing camera.");
+      }
+    };
+
+    video.addEventListener("loadedmetadata", onLoaded);
+    return () => {
+      video.removeEventListener("loadedmetadata", onLoaded);
+    };
   }, [stream]);
+
+  useEffect(
+    () => () => {
+      if (stream) stream.getTracks().forEach((t) => t.stop());
+    },
+    [stream]
+  );
 
   const onFile = (file) => {
     if (!file) return;
@@ -23,13 +47,17 @@ export default function UploadPanel({ onAnalyze, image }) {
   };
 
   const startCamera = async () => {
+    setCameraError("");
     try {
-      const s = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      const s = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false,
+      });
       setStream(s);
       setCameraOn(true);
-      if (videoRef.current) videoRef.current.srcObject = s;
     } catch (_) {
       setCameraOn(false);
+      setCameraError("Camera access denied/unavailable. Check browser permissions and HTTPS/localhost.");
     }
   };
 
@@ -47,12 +75,16 @@ export default function UploadPanel({ onAnalyze, image }) {
     c.height = v.videoHeight || 480;
     const ctx = c.getContext("2d");
     ctx.drawImage(v, 0, 0, c.width, c.height);
-    c.toBlob((blob) => {
-      if (!blob) return;
-      const file = new File([blob], `camera-${Date.now()}.png`, { type: "image/png" });
-      onFile(file);
-      stopCamera();
-    }, "image/png");
+    c.toBlob(
+      (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `camera-${Date.now()}.png`, { type: "image/png" });
+        onFile(file);
+        stopCamera();
+      },
+      "image/png",
+      0.95
+    );
   };
 
   return (
@@ -95,6 +127,8 @@ export default function UploadPanel({ onAnalyze, image }) {
           <canvas ref={canvasRef} className="hidden" />
         </div>
       )}
+
+      {cameraError && <div className="camera-error">{cameraError}</div>}
 
       <div className="file-meta">
         <span>{image ? image.name : "No file selected"}</span>

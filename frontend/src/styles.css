@@ -119,3 +119,38 @@ input, select { border: 1px solid var(--border); border-radius: 8px; padding: 8p
   .imaging-grid, .imaging-grid.compare-on { grid-template-columns: 1fr; }
   .badge-action { margin-left: 0; }
 }
+.camera-error {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid #f57f7f;
+  border-radius: 8px;
+  color: #ffd7d7;
+  background: rgba(185, 56, 56, 0.2);
+  font-size: 12px;
+}
+
+.theme-light .camera-error {
+  color: #7b1212;
+  background: rgba(231, 89, 89, 0.12);
+  border-color: rgba(167, 26, 26, 0.45);
+}
+
+/* Recharts dark/light readability fixes */
+.recharts-cartesian-axis-tick-value {
+  fill: var(--muted);
+}
+
+.recharts-text {
+  fill: var(--muted);
+}
+
+.recharts-default-tooltip {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+.recharts-tooltip-item,
+.recharts-tooltip-label {
+  color: var(--text) !important;
+}
