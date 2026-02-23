@@ -33,7 +33,9 @@ function softmax(logits) {
 export async function runInference(file, options = {}) {
   if (!file) return null;
 
-  const modelUrl = options.modelUrl || "/models/best_model.onnx";
+  const modelUrl = options.modelUrl || "/models/best_accuracy.onnx";
+  const heatmapUrl = options.heatmapUrl || "/heatmaps/latest_gradcam.png";
+
   try {
     const ort = await import("onnxruntime-web");
     const inputData = await preprocessImage(file);
@@ -48,8 +50,9 @@ export async function runInference(file, options = {}) {
     const logits = Array.from(outputs[outputName].data);
     const probs = softmax(logits);
 
-    const probabilities = CLASS_NAMES.map((label, i) => ({ label, value: probs[i] ?? 0 }))
-      .sort((a, b) => b.value - a.value);
+    const probabilities = CLASS_NAMES.map((label, i) => ({ label, value: probs[i] ?? 0 })).sort(
+      (a, b) => b.value - a.value
+    );
 
     return {
       probabilities,
@@ -57,9 +60,14 @@ export async function runInference(file, options = {}) {
       confidence: probabilities[0].value,
       severity: probabilities[0].value > 0.8 ? "severe" : probabilities[0].value > 0.6 ? "moderate" : "mild",
       heatmapType: "Grad-CAM",
+      heatmapUrl,
       mode: "onnxruntime-web",
     };
   } catch (_) {
-    return runFallbackInference(file);
+    const fallback = runFallbackInference(file);
+    return {
+      ...fallback,
+      heatmapUrl,
+    };
   }
 }

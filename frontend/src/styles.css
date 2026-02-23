@@ -505,3 +505,16 @@ select {
     min-height: 320px;
   }
 }
+.imaging-grid.compare-on {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.heatmap-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
