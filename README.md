@@ -1,13 +1,27 @@
 # EyeGPT-AI
 
-Research-grade multi-architecture retinal disease classification benchmark with explainable AI and browser-ready deployment.
+EyeGPT-AI is a modular multi-architecture retinal disease AI system combining transfer learning and custom lightweight model design with explainable AI and browser-based deployment.
 
-## Scope
+## Project Overview
 - Multi-disease classes: Cataract, Glaucoma, Diabetic Retinopathy, Normal
-- Multi-model training and benchmarking
-- Custom lightweight model design: EyeGPTNet
-- Explainability (Grad-CAM)
-- ONNX export and browser inference path
+- Transfer-learning benchmarks: EfficientNetB0, ResNet50, ViT (plus additional candidates)
+- Custom lightweight architecture: EyeGPTNet (<5M params target)
+- Explainability pipeline: Grad-CAM overlays (transparent PNG)
+- Deployment path: ONNX + quantized ONNX + browser inference via `onnxruntime-web`
+
+## Architecture Diagram
+```mermaid
+flowchart LR
+  A[Raw Kaggle Datasets] --> B[ml/data merge + clean + split]
+  B --> C[ml/training train_and_benchmark]
+  C --> D[ml/evaluation metrics + reports]
+  C --> E[ml/explainability Grad-CAM]
+  C --> F[ml/export ONNX + quantized]
+  D --> G[model_registry]
+  E --> G
+  F --> G
+  G --> H[frontend EyeGPT onnxruntime-web]
+```
 
 ## Repository Structure
 ```text
@@ -27,44 +41,55 @@ EyeGPT-AI/
 +-- README.md
 ```
 
-## Training Workflow
-1. Build dataset manifests and splits:
-```bash
-python ml/data/merge_and_normalize.py
-python ml/data/clean_images.py --split-csv ml/experiments/phase1/splits/train.csv
-python ml/data/clean_images.py --split-csv ml/experiments/phase1/splits/val.csv
-python ml/data/clean_images.py --split-csv ml/experiments/phase1/splits/test.csv
-```
-2. Train and benchmark models:
-```bash
-python ml/training/train_and_benchmark.py --models EfficientNetB0 ResNet50 ViT EyeGPTNet
-```
-3. Run research studies:
-```bash
-python ml/training/cross_validation.py
-python ml/training/ablation_study.py
-```
+## Dataset Summary
+- Merged and normalized to unified 4-class taxonomy.
+- Quality filters include blur (Laplacian variance) and brightness checks.
+- Input resized to `224x224`.
+- Stratified split: `70% train / 15% val / 15% test`.
+- Generated artifacts include:
+  - `ml/experiments/phase1/dataset_summary.json`
+  - `ml/experiments/phase1/class_distribution.png`
 
-## Export Workflow
-```bash
-python ml/export/export_models.py
-python ml/evaluation/performance_benchmark.py
-```
-Artifacts are written to `model_registry/`.
+## Model Comparison Table
+| Model | Accuracy | F1 | Params | Size (MB) | CPU(ms) |
+|---|---:|---:|---:|---:|---:|
+| EfficientNetB0 | pending | pending | pending | pending | pending |
+| ResNet50 | pending | pending | pending | pending | pending |
+| ViT | pending | pending | pending | pending | pending |
+| EyeGPTNet | pending | pending | pending | pending | pending |
 
-## Frontend (EyeGPT)
+Populate from: `ml/experiments/phase2/model_comparison.csv`
+
+## Explainability Visuals
+- Grad-CAM code: `ml/explainability/gradcam.py`
+- Example outputs folder: `docs/explainability/`
+- Frontend overlay visualization: `frontend/src/components/ImagingPanel.jsx`
+
+## Export + Deployment Benchmarks
+- Export runner: `ml/export/export_models.py`
+- Registry artifacts: `model_registry/`
+- Benchmark JSON: `model_registry/model_performance_benchmark.json`
+
+## Frontend Demo
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-- Uses real ONNX browser inference when `/models/best_model.onnx` is available.
-- Falls back to deterministic mock inference if model/runtime is unavailable.
 
-## Explainability
-- Grad-CAM generation: `ml/explainability/gradcam.py`
-- Transparent heatmaps: `ml/explainability/heatmap_utils.py`
-- UI overlay controls: `frontend/src/components/ImagingPanel.jsx`
+## ML Commands
+```bash
+python ml/data/merge_and_normalize.py
+python ml/data/clean_images.py --split-csv ml/experiments/phase1/splits/train.csv
+python ml/training/train_and_benchmark.py --models EfficientNetB0 ResNet50 ViT EyeGPTNet
+python ml/training/cross_validation.py
+python ml/training/ablation_study.py
+python ml/explainability/generate_examples.py
+python ml/export/export_models.py
+```
+
+## Demo GIF
+Add final demo at: `docs/demo.gif`
 
 ## Disclaimer
 Educational and research project only. Not a medical device and not a clinical diagnostic system.
