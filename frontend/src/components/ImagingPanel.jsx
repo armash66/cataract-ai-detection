@@ -49,8 +49,10 @@ export default function ImagingPanel({ image, result }) {
           <button className="btn btn-secondary" type="button" onClick={() => setPanX((v) => v + 8)}><ChevronRight size={14} /></button>
           <button className="btn btn-secondary" type="button" onClick={() => setPanY((v) => v - 8)}><MoveDiagonal2 size={14} /></button>
           <button className="btn btn-secondary" type="button" onClick={() => setPanY((v) => v + 8)}><MoveDiagonal2 size={14} /></button>
+          <button className="btn btn-secondary" type="button" onClick={() => { setZoom(1); setPanX(0); setPanY(0); }}>Reset View</button>
           <input ref={compareRef} type="file" className="hidden" accept="image/*" onChange={(e) => setCompareImage(e.target.files?.[0] || null)} />
           <button className="btn btn-secondary" type="button" onClick={() => compareRef.current?.click()}>Compare</button>
+          {compareImage && <button className="btn btn-secondary" type="button" onClick={() => setCompareImage(null)}>Clear Compare</button>}
         </div>
       </div>
 
