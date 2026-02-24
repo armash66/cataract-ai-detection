@@ -63,19 +63,19 @@ sequenceDiagram
 ## Repository Structure
 ```text
 EyeGPT-AI/
-+-- ml/
-¦   +-- data/                 # dataset merge, cleaning, augmentation, quality
-¦   +-- models/               # EfficientNet/ResNet/ViT/ConvNeXt + EyeGPTNet
-¦   +-- training/             # benchmark training, cross-val, ablation, trainer utils
-¦   +-- evaluation/           # metrics, confusion matrix, ROC, performance benchmark
-¦   +-- explainability/       # Grad-CAM + heatmap export
-¦   +-- export/               # ONNX, quantization, export benchmarking
-¦   +-- experiments/          # generated artifacts (csv/json/plots/logs)
-¦   +-- utils/                # seed/config/logger
-+-- model_registry/           # deployment-oriented model outputs + metadata
-+-- frontend/                 # landing + analysis UI + browser inference
-+-- docs/                     # architecture and supporting notes
-+-- README.md
+|-- ml/
+|   |-- data/                 # dataset merge, cleaning, augmentation, quality
+|   |-- models/               # EfficientNet/ResNet/ViT/ConvNeXt + EyeGPTNet
+|   |-- training/             # benchmark training, cross-val, ablation, trainer utils
+|   |-- evaluation/           # metrics, confusion matrix, ROC, performance benchmark
+|   |-- explainability/       # Grad-CAM + heatmap export
+|   |-- export/               # ONNX, quantization, export benchmarking
+|   |-- experiments/          # generated artifacts (csv/json/plots/logs)
+|   `-- utils/                # seed/config/logger
+|-- model_registry/           # deployment-oriented model outputs + metadata
+|-- frontend/                 # landing + analysis UI + browser inference
+|-- docs/                     # architecture and supporting notes
+`-- README.md
 ```
 
 ---
