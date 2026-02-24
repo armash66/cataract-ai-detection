@@ -10,3 +10,4 @@ tqdm
 kagglehub
 opencv-python
 albumentations
+onnxruntime

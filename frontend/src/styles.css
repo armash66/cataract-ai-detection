@@ -88,13 +88,23 @@ body {
 .camera-video { width: 100%; border-radius: 8px; border: 1px solid var(--border); }
 
 .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
-.prediction-badge, .confidence-badge { border: 1px solid var(--border); border-radius: 999px; padding: 4px 9px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; }
+.prediction-badge, .confidence-badge, .model-used-badge { border: 1px solid var(--border); border-radius: 999px; padding: 4px 9px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; }
 .prediction-badge { background: rgba(46, 168, 255, 0.15); }
+.model-used-badge { background: rgba(148, 163, 184, 0.2); color: var(--muted); }
 .badge-action { margin-left: auto; }
 .chart-wrap { width: 100%; height: 230px; }
 .outcome-empty { border: 1px dashed var(--border); border-radius: 10px; padding: 14px; color: var(--muted); }
 .prob-grid { margin-top: 10px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .prob-item { display: flex; justify-content: space-between; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; color: var(--muted); background: var(--surface-2); }
+
+.metrics-table-wrap { overflow-x: auto; margin: 10px 0; }
+.metrics-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.metrics-table th, .metrics-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+.metrics-table th { color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.metrics-images { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+.metrics-image-cell { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; max-width: 280px; }
+.metrics-image-label { padding: 6px 8px; font-size: 10px; text-transform: uppercase; color: var(--muted); }
+.metrics-img { width: 100%; height: auto; display: block; }
 
 .imaging-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
 .imaging-title { color: var(--muted); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; }

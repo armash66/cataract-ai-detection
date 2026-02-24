@@ -10,6 +10,26 @@ const ABSTAIN_CONFIDENCE_THRESHOLD = 0.5;
 /** If quality score is below this, we may abstain with reason low_quality. */
 const ABSTAIN_QUALITY_THRESHOLD = 60;
 
+/** Cached calibration (per-class and global thresholds). Loaded from /calibration.json when available. */
+let calibrationCache = null;
+
+export async function loadCalibration() {
+  if (calibrationCache) return calibrationCache;
+  try {
+    const r = await fetch("/calibration.json");
+    if (r.ok) calibrationCache = await r.json();
+  } catch (_) {}
+  return calibrationCache;
+}
+
+function getAbstainThresholdForClass(calibration, topClass) {
+  if (!calibration) return ABSTAIN_CONFIDENCE_THRESHOLD;
+  const per = calibration.per_class_thresholds || {};
+  const t = per[topClass] ?? calibration.global_abstain_threshold;
+  if (t == null) return ABSTAIN_CONFIDENCE_THRESHOLD;
+  return Number(t) <= 1 ? Number(t) : Number(t) / 100;
+}
+
 async function preprocessImage(file) {
   const bitmap = await createImageBitmap(file);
   const canvas = document.createElement("canvas");
@@ -70,11 +90,14 @@ function buildResultFromProbs(probs, mode, heatmapUrl, options = {}) {
   const sorted = [...adjusted].sort((a, b) => b.value - a.value);
   const confidence = sorted[0]?.value ?? 0;
   const qualityScore = options.qualityScore ?? null;
+  const topClass = sorted[0]?.label ?? null;
+  const calibration = options.calibration ?? null;
+  const modelUsed = options.modelUsed ?? "fallback";
 
-  // Abstention: never force definitive disease output on bad inputs
+  const threshold = getAbstainThresholdForClass(calibration, topClass);
   let abstain = false;
   const abstainReasons = [];
-  if (confidence < ABSTAIN_CONFIDENCE_THRESHOLD) {
+  if (confidence < threshold) {
     abstain = true;
     abstainReasons.push("low_confidence");
   }
@@ -85,7 +108,7 @@ function buildResultFromProbs(probs, mode, heatmapUrl, options = {}) {
 
   return {
     probabilities: sorted,
-    topClass: sorted[0]?.label ?? null,
+    topClass,
     confidence,
     severity: confidence > 0.8 ? "severe" : confidence > 0.6 ? "moderate" : "mild",
     heatmapType: "Grad-CAM",
@@ -94,6 +117,7 @@ function buildResultFromProbs(probs, mode, heatmapUrl, options = {}) {
     normalOverride,
     abstain,
     abstainReasons: abstainReasons.length ? abstainReasons : null,
+    modelUsed,
   };
 }
 
@@ -104,25 +128,34 @@ export async function runInference(file, options = {}) {
   const modelUrl = options.modelUrl || (modality ? getModelUrlForModality(modality) : "/models/best_accuracy.onnx");
   const heatmapUrl = options.heatmapUrl || "/heatmaps/latest_gradcam.png";
   const qualityScore = options.qualityScore ?? null;
+  const calibration = await loadCalibration();
 
+  let modelUsed = modality && modality !== "fallback" ? modality : "fallback";
   try {
     const ort = await import("onnxruntime-web");
     const inputData = await preprocessImage(file);
     const session = await ort.InferenceSession.create(modelUrl, {
       executionProviders: ["wasm"],
     });
-
+    modelUsed = modality || "fallback";
     const inputName = session.inputNames[0];
     const outputName = session.outputNames[0];
     const tensor = new ort.Tensor("float32", inputData, [1, 3, 224, 224]);
     const outputs = await session.run({ [inputName]: tensor });
     const logits = Array.from(outputs[outputName].data);
     const probs = softmax(logits);
-
-    return buildResultFromProbs(probs, "onnxruntime-web", heatmapUrl, { qualityScore });
+    return buildResultFromProbs(probs, "onnxruntime-web", heatmapUrl, {
+      qualityScore,
+      calibration,
+      modelUsed,
+    });
   } catch (_) {
     const fallback = runFallbackInference(file);
     const probs = CLASS_NAMES.map((c) => fallback.probabilities.find((p) => p.label === c)?.value ?? 0);
-    return buildResultFromProbs(probs, fallback.mode || "mock", heatmapUrl, { qualityScore });
+    return buildResultFromProbs(probs, fallback.mode || "mock", heatmapUrl, {
+      qualityScore,
+      calibration,
+      modelUsed: "fallback",
+    });
   }
 }

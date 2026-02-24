@@ -162,6 +162,29 @@ Per-model artifacts:
 Aggregate artifact:
 - `ml/experiments/phase2/model_comparison.csv`
 
+### Modality-specific models
+Train and export fundus and anterior experts:
+```powershell
+python -m ml.training.train_modality --modality fundus --data-dir ml/experiments/phase1_fundus/cleaned --output-dir ml/experiments/phase2_fundus
+python -m ml.training.train_modality --modality anterior --data-dir ml/experiments/phase1_anterior/cleaned --output-dir ml/experiments/phase2_anterior
+```
+Or export from existing weights:
+```powershell
+python -m ml.export.export_modality_onnx --modality fundus --weights ml/experiments/phase2_fundus/EfficientNetB0/best_weights.pt
+python -m ml.export.export_modality_onnx --modality anterior --weights ml/experiments/phase2_anterior/EfficientNetB0/best_weights.pt
+```
+Copy `model_registry/fundus_multi_disease.onnx` and `anterior_multi_disease.onnx` to `frontend/public/models/` for the UI.
+
+### Benchmark table (fill from your runs)
+| Model           | Accuracy | F1 (weighted) | ROC-AUC (ovr) | Notes   |
+|-----------------|----------|---------------|---------------|---------|
+| EfficientNetB0  | —        | —             | —             | default |
+| ResNet50        | —        | —             | —             |         |
+| ViT             | —        | —             | —             |         |
+| EyeGPTNet       | —        | —             | —             | light   |
+
+Run `python -m ml.evaluation.build_metrics_dashboard` to generate `frontend/public/metrics/benchmark.json` from `ml/experiments/phase2/`; the analysis page shows the metrics dashboard from that file.
+
 ### Historical note
 - **Hand-trained legacy cataract models**: `anterior_pipeline/`, `fundus_pipeline/`
 - **Fine-tuned multi-disease models**: current `ml/` modular pipeline
@@ -172,10 +195,13 @@ Aggregate artifact:
 ```powershell
 python ml/training/cross_validation.py
 python ml/training/ablation_study.py
+python -m ml.evaluation.external_validation --internal-metrics ml/experiments/phase2/EfficientNetB0/metrics.json --external-csv ml/experiments/external_test_labels.csv --weights ml/experiments/phase2/EfficientNetB0/best_weights.pt --out ml/experiments/external_validation_report.json
+python -m ml.evaluation.reliability_tests
 ```
 Outputs:
 - `ml/experiments/phase3/crossval_results.csv`
 - `ml/experiments/phase3/ablation_results.csv`
+- `external_validation_report.json` (internal vs external accuracy/F1/ROC gap)
 
 ---
 
@@ -215,6 +241,23 @@ node .\node_modules\vite\bin\vite.js
 
 ### ONNX fallback to mock
 If model file is missing at configured path, frontend falls back to mock output.
+
+---
+
+## Screenshots and demos
+Add screenshots or short GIFs to `docs/screenshots/` and link them here, for example:
+- Analysis screen with result and Grad-CAM overlay
+- Abstention banner when confidence is low
+- Metrics dashboard with confusion matrix / ROC
+
+---
+
+## Limitations and safety boundaries
+- **Not a medical device**: Outputs are for research and education only. Do not use for clinical diagnosis or treatment decisions.
+- **Domain and data**: Models are trained on specific datasets; performance may drop on different imaging devices, populations, or pathologies. Use external validation to measure internal vs external gap.
+- **Abstention**: Low confidence, low image quality, or modality mismatch triggers abstention (no definitive class). Always respect “manual review recommended” and do not override for clinical use.
+- **Modality**: Fundus and anterior are separate models; use the correct image type. If the wrong modality is used, the system may abstain or report modality mismatch.
+- **Explainability**: Grad-CAM highlights model attention only; it is not a substitute for clinical judgment and may be misleading on out-of-distribution images.
 
 ---
 

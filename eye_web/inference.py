@@ -25,11 +25,24 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 STATIC_GEN_DIR = os.path.join(STATIC_DIR, "generated")
 os.makedirs(STATIC_GEN_DIR, exist_ok=True)
 
-# Abstention: do not force definitive output when confidence is too low
-ABSTAIN_CONFIDENCE_THRESHOLD = 0.5
+# Abstention threshold: from calibration JSON when available (0–100 scale)
 MODALITIES = ("fundus", "anterior")
 DEFAULT_MODALITY = "anterior"
+try:
+    from calibration import get_abstain_threshold
+    ABSTAIN_CONFIDENCE_THRESHOLD = get_abstain_threshold()
+except Exception:
+    ABSTAIN_CONFIDENCE_THRESHOLD = 50.0
 
+# Optional: fundus ONNX when available
+def _fundus_onnx_path():
+    try:
+        from pathlib import Path
+        from ml.modality_router.config import get_model_path_for_modality
+        p = get_model_path_for_modality("fundus", Path(PROJECT_ROOT))
+        return str(p) if p.exists() else None
+    except Exception:
+        return None
 
 import uuid
 
@@ -58,16 +71,28 @@ def run_inference(image_path, scan_type=None):
         return {"error": message}
 
     # -----------------------------
-    # Modality routing: anterior only for now; fundus can be added when model exists
+    # Modality routing: fundus ONNX when available, else anterior pipeline
     # -----------------------------
+    modality_mismatch = False
     if scan_type == "fundus":
-        # Placeholder: when fundus_multi_disease model is deployed, call it here.
-        # For now we still use anterior model and flag that fundus was requested.
-        label, confidence = predict_image(image_path)
-        modality_mismatch = True  # User said fundus but we used anterior
+        fundus_path = _fundus_onnx_path()
+        try:
+            from onnx_inference import run_onnx as run_fundus_onnx
+            if fundus_path and run_fundus_onnx:
+                label, confidence = run_fundus_onnx(fundus_path, image_path)
+                if label is not None:
+                    modality_mismatch = False
+                else:
+                    label, confidence = predict_image(image_path)
+                    modality_mismatch = True
+            else:
+                label, confidence = predict_image(image_path)
+                modality_mismatch = True
+        except Exception:
+            label, confidence = predict_image(image_path)
+            modality_mismatch = True
     else:
         label, confidence = predict_image(image_path)
-        modality_mismatch = False
 
     # -----------------------------
     # Abstention: never force definitive disease output on bad inputs

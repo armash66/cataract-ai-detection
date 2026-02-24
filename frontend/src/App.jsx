@@ -9,6 +9,7 @@ import ThemeToggle from "./components/ThemeToggle";
 import ImagingPanel from "./components/ImagingPanel";
 import ExplainPanel from "./components/ExplainPanel";
 import ModalitySelector from "./components/ModalitySelector";
+import MetricsDashboard from "./components/MetricsDashboard";
 
 import { runInference } from "./utils/inference";
 import { computeRisk } from "./utils/riskEngine";
@@ -94,6 +95,7 @@ export default function App() {
           <div className="right-column">
             <ImagingPanel image={image} result={result} />
             <ExplainPanel result={result} />
+            <MetricsDashboard />
           </div>
         </div>
       </main>

@@ -92,6 +92,11 @@ export default function PredictionDashboard({ result }) {
             <span className="prediction-badge">
               {result.abstain ? "Uncertain" : result.topClass}
             </span>
+            {result.modelUsed && (
+              <span className="model-used-badge" title={`Model: ${result.modelUsed}`}>
+                {result.modelUsed === "fundus" ? "Fundus model" : result.modelUsed === "anterior" ? "Anterior model" : "Fallback model"}
+              </span>
+            )}
             <span className="confidence-badge">{Math.round(result.confidence * 100)}% confidence</span>
             <span className="confidence-badge">Severity: {result.severity}</span>
             <button className="btn btn-secondary badge-action" type="button" onClick={() => downloadPdfReport(result)}>

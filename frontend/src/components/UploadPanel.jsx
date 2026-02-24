@@ -11,6 +11,7 @@ export default function UploadPanel({ onAnalyze, image }) {
   const [stream, setStream] = useState(null);
   const [cameraOn, setCameraOn] = useState(false);
   const [cameraError, setCameraError] = useState("");
+  const [cameraLoading, setCameraLoading] = useState(false);
 
   useEffect(() => {
     if (!stream || !videoRef.current) return;
@@ -48,6 +49,7 @@ export default function UploadPanel({ onAnalyze, image }) {
 
   const startCamera = async () => {
     setCameraError("");
+    setCameraLoading(true);
     try {
       const s = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
@@ -55,9 +57,16 @@ export default function UploadPanel({ onAnalyze, image }) {
       });
       setStream(s);
       setCameraOn(true);
-    } catch (_) {
+    } catch (e) {
       setCameraOn(false);
-      setCameraError("Camera access denied/unavailable. Check browser permissions and HTTPS/localhost.");
+      const msg = e?.name === "NotAllowedError"
+        ? "Camera permission denied. Allow camera access and try again."
+        : e?.name === "NotFoundError"
+          ? "No camera found on this device."
+          : "Camera unavailable. Check permissions and use HTTPS or localhost.";
+      setCameraError(msg);
+    } finally {
+      setCameraLoading(false);
     }
   };
 
@@ -98,8 +107,8 @@ export default function UploadPanel({ onAnalyze, image }) {
         <button className="btn btn-primary" type="button" onClick={() => inputRef.current?.click()}>
           <ImagePlus size={16} /> Choose
         </button>
-        <button className="btn btn-secondary" type="button" onClick={startCamera}>
-          <Camera size={16} /> Camera
+        <button className="btn btn-secondary" type="button" onClick={startCamera} disabled={cameraLoading}>
+          {cameraLoading ? "Starting…" : <><Camera size={16} /> Camera</>}
         </button>
         <button className="btn btn-secondary" type="button" onClick={() => image && onAnalyze(image, { qualityScore: quality?.score })}>
           <Upload size={16} /> Re-analyze
@@ -128,7 +137,7 @@ export default function UploadPanel({ onAnalyze, image }) {
         </div>
       )}
 
-      {cameraError && <div className="camera-error">{cameraError}</div>}
+      {cameraError && <div className="camera-error" role="alert">{cameraError}</div>}
 
       <div className="file-meta">
         <span>{image ? image.name : "No file selected"}</span>

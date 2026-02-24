@@ -1,0 +1,10 @@
+{
+  "temperature": 1,
+  "per_class_thresholds": {
+    "Cataract": 0.5,
+    "Glaucoma": 0.5,
+    "Diabetic Retinopathy": 0.5,
+    "Normal": 0.5
+  },
+  "global_abstain_threshold": 0.5
+}
