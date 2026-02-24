@@ -30,11 +30,19 @@ def index():
             image_path = os.path.join(UPLOAD_FOLDER, unique_name)
             file.save(image_path)
 
-
-            inference_result = run_inference(image_path)
+            scan_type = request.form.get("scan_type", "anterior").strip().lower() or "anterior"
+            inference_result = run_inference(image_path, scan_type=scan_type)
 
             if not inference_result or "error" in inference_result:
                 error = inference_result.get("error", "Inference failed.")
+            elif inference_result.get("abstain"):
+                error = inference_result.get("message", "Manual review recommended.")
+                result = {
+                    "prediction": "Uncertain",
+                    "confidence": inference_result.get("confidence", 0),
+                    "abstain": True,
+                }
+                # Optional: still show something in UI; here we use error to show the message
             else:
                 result = {
                     "prediction": inference_result["prediction"],

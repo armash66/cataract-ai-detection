@@ -43,7 +43,7 @@ export default function UploadPanel({ onAnalyze, image }) {
     if (!file) return;
     const qualityResult = runQualityCheck(file);
     setQuality(qualityResult);
-    onAnalyze(file);
+    onAnalyze(file, { qualityScore: qualityResult?.score });
   };
 
   const startCamera = async () => {
@@ -101,7 +101,7 @@ export default function UploadPanel({ onAnalyze, image }) {
         <button className="btn btn-secondary" type="button" onClick={startCamera}>
           <Camera size={16} /> Camera
         </button>
-        <button className="btn btn-secondary" type="button" onClick={() => image && onAnalyze(image)}>
+        <button className="btn btn-secondary" type="button" onClick={() => image && onAnalyze(image, { qualityScore: quality?.score })}>
           <Upload size={16} /> Re-analyze
         </button>
         <button className="btn btn-secondary" type="button" onClick={() => onAnalyze(null)}>

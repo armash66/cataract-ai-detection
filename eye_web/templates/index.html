@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -72,12 +72,18 @@
                         <div class="outcome-body">
                             <div class="badge-row">
                                 <span class="prediction-badge">{{ result.prediction }}</span>
+                                {% if result.abstain %}
+                                <span class="abstain-badge">Manual review recommended</span>
+                                {% else %}
                                 <span class="confidence-badge" id="confidenceBadge">Confidence</span>
                                 <span class="low-confidence" id="lowConfidence">Low confidence</span>
+                                {% endif %}
                             </div>
 
                             <p class="outcome-summary">
-                                {% if result.prediction|lower == 'cataract' %}
+                                {% if result.abstain %}
+                                    Insufficient confidence or modality mismatch. Do not use as a definitive result.
+                                {% elif result.prediction|lower == 'cataract' %}
                                     Patterns consistent with lens opacity were detected. Results are non-diagnostic and for research only.
                                 {% else %}
                                     No strong cataract-related patterns detected. Results are non-diagnostic and for research only.
@@ -185,11 +191,11 @@
                                 <span class="meta-label">Input Type</span>
                                 <div class="input-options">
                                     <label class="input-option">
-                                        <input type="radio" name="scan_type" value="fundus" checked>
+                                        <input type="radio" name="scan_type" value="fundus">
                                         Fundus
                                     </label>
                                     <label class="input-option">
-                                        <input type="radio" name="scan_type" value="anterior">
+                                        <input type="radio" name="scan_type" value="anterior" checked>
                                         Anterior
                                     </label>
                                 </div>

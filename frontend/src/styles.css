@@ -76,6 +76,14 @@ body {
 .file-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; }
 .quality-pill { margin-top: 8px; display: inline-block; border: 1px solid #3ccf88; color: #3ccf88; border-radius: 999px; padding: 4px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; }
 
+.modality-selector { margin-bottom: 4px; }
+.modality-selector .modality-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 6px; }
+.modality-selector .modality-select { width: 100%; max-width: 200px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 13px; cursor: pointer; }
+
+.abstain-banner { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.5); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; font-size: 13px; }
+.abstain-banner strong { color: #f59e0b; }
+.abstain-reason { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+
 .camera-box { margin-top: 10px; border: 1px solid var(--border); border-radius: 12px; padding: 10px; background: var(--surface-2); }
 .camera-video { width: 100%; border-radius: 8px; border: 1px solid var(--border); }
 
