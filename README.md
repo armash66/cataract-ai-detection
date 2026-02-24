@@ -117,6 +117,11 @@ Features in UI:
 - risk estimator
 - PDF report download
 
+### Modality, abstention, and calibration
+- **Modality**: Choose *Fundus* or *Anterior* in the analysis page; inference uses the matching ONNX when available (`/models/fundus_multi_disease.onnx`, `/models/anterior_multi_disease.onnx`), else fallback.
+- **Abstention**: Low confidence or low image quality triggers “Insufficient confidence – manual review recommended” instead of a definitive class; same logic in the Flask app (`eye_web`).
+- **Calibration**: Run `python -m ml.training.calibrate_and_thresholds --weights <path> --model-name EfficientNetB0 --out model_registry/calibration.json` to fit temperature scaling and per-class thresholds on the val set.
+
 ---
 
 ## Data Pipeline
@@ -132,6 +137,8 @@ python ml/data/clean_images.py --split-csv ml/experiments/phase1/splits/val.csv
 python ml/data/clean_images.py --split-csv ml/experiments/phase1/splits/test.csv
 python ml/data/quality_analysis.py
 ```
+
+Optional: use `--patient-id-column <column>` with `merge_and_normalize.py` so train/val/test splits are at **patient level** (no same patient in two splits).
 
 Expected outputs:
 - `ml/experiments/phase1/dataset_summary.json`
