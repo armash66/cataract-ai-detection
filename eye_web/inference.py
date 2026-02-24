@@ -25,22 +25,30 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 STATIC_GEN_DIR = os.path.join(STATIC_DIR, "generated")
 os.makedirs(STATIC_GEN_DIR, exist_ok=True)
 
+# Abstention: do not force definitive output when confidence is too low
+ABSTAIN_CONFIDENCE_THRESHOLD = 0.5
+MODALITIES = ("fundus", "anterior")
+DEFAULT_MODALITY = "anterior"
+
 
 import uuid
 
-def run_inference(image_path):
+def run_inference(image_path, scan_type=None):
     """
     Full inference pipeline:
     - Quality check
+    - Modality routing (fundus vs anterior)
     - Prediction
+    - Abstention when confidence too low
     - Grad-CAM generation
 
+    scan_type: "fundus" | "anterior" (default). Routes to the appropriate expert model.
     Returns:
-        prediction
-        confidence
-        original_image_path
-        gradcam_image_path
+        prediction, confidence, paths, or error/abstain payload.
     """
+    scan_type = (scan_type or "").strip().lower() or DEFAULT_MODALITY
+    if scan_type not in MODALITIES:
+        scan_type = DEFAULT_MODALITY
 
     # -----------------------------
     # Quality gate
@@ -50,9 +58,34 @@ def run_inference(image_path):
         return {"error": message}
 
     # -----------------------------
-    # Prediction
+    # Modality routing: anterior only for now; fundus can be added when model exists
     # -----------------------------
-    label, confidence = predict_image(image_path)
+    if scan_type == "fundus":
+        # Placeholder: when fundus_multi_disease model is deployed, call it here.
+        # For now we still use anterior model and flag that fundus was requested.
+        label, confidence = predict_image(image_path)
+        modality_mismatch = True  # User said fundus but we used anterior
+    else:
+        label, confidence = predict_image(image_path)
+        modality_mismatch = False
+
+    # -----------------------------
+    # Abstention: never force definitive disease output on bad inputs
+    # -----------------------------
+    if confidence < ABSTAIN_CONFIDENCE_THRESHOLD:
+        return {
+            "abstain": True,
+            "reason": "low_confidence",
+            "message": "Insufficient confidence – manual review recommended.",
+            "confidence": round(confidence, 2),
+        }
+    if modality_mismatch:
+        return {
+            "abstain": True,
+            "reason": "modality_mismatch",
+            "message": "Fundus model not yet available; anterior model was used. Manual review recommended.",
+            "confidence": round(confidence, 2),
+        }
 
     # -----------------------------
     # Grad-CAM generation

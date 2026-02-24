@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
     --bg: #0a0f1a;
@@ -344,6 +344,12 @@ body {
     display: none;
     color: var(--danger);
     border-color: rgba(248, 113, 113, 0.4);
+}
+
+.abstain-badge {
+    color: #f59e0b;
+    border-color: rgba(245, 158, 11, 0.5);
+    background: rgba(245, 158, 11, 0.1);
 }
 
 .outcome-summary {

@@ -3,6 +3,28 @@ import { jsPDF } from "jspdf";
 
 const CLASS_ORDER = ["Cataract", "Glaucoma", "Diabetic Retinopathy", "Normal"];
 
+function AxisTick({ x, y, payload }) {
+  const value = String(payload?.value || "");
+  if (value === "Diabetic Retinopathy") {
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text textAnchor="middle" fill="currentColor" style={{ fontSize: 11 }}>
+          <tspan x="0" dy="0.95em">Diabetic</tspan>
+          <tspan x="0" dy="1.1em">Retinopathy</tspan>
+        </text>
+      </g>
+    );
+  }
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text textAnchor="middle" fill="currentColor" style={{ fontSize: 11 }} dy="0.95em">
+        {value}
+      </text>
+    </g>
+  );
+}
+
 function canonicalProbabilities(result) {
   const map = new Map((result?.probabilities || []).map((p) => [p.label, Number(p.value) || 0]));
   const raw = CLASS_ORDER.map((label) => ({ label, value: Math.max(0, map.get(label) || 0) }));
@@ -24,12 +46,13 @@ function downloadPdfReport(result) {
   doc.setFontSize(16);
   doc.text("EyeGPT-AI Screening Report", 14, 18);
   doc.setFontSize(11);
-  doc.text(`Primary Class: ${result.topClass}`, 14, 32);
+  doc.text(`Primary Class: ${result.abstain ? "Uncertain (abstained)" : result.topClass}`, 14, 32);
   doc.text(`Confidence: ${Math.round(result.confidence * 100)}%`, 14, 40);
-  doc.text(`Severity: ${result.severity}`, 14, 48);
-  doc.text("Class Probabilities:", 14, 60);
+  if (result.abstain) doc.text("Abstention: Manual review recommended.", 14, 48);
+  else doc.text(`Severity: ${result.severity}`, 14, 48);
+  doc.text("Class Probabilities:", 14, result.abstain ? 56 : 60);
 
-  let y = 68;
+  let y = result.abstain ? 64 : 68;
   probs.forEach((p) => {
     doc.text(`- ${p.label}: ${(p.value * 100).toFixed(2)}%`, 16, y);
     y += 7;
@@ -53,8 +76,22 @@ export default function PredictionDashboard({ result }) {
         <div className="outcome-empty">Upload an image to see disease probabilities and severity.</div>
       ) : (
         <>
+          {result.abstain && (
+            <div className="abstain-banner" role="alert">
+              <strong>Insufficient confidence – manual review recommended.</strong>
+              {result.abstainReasons?.includes("low_confidence") && (
+                <span className="abstain-reason"> Prediction confidence below threshold.</span>
+              )}
+              {result.abstainReasons?.includes("low_quality") && (
+                <span className="abstain-reason"> Image quality may be too low.</span>
+              )}
+            </div>
+          )}
+
           <div className="badge-row">
-            <span className="prediction-badge">{result.topClass}</span>
+            <span className="prediction-badge">
+              {result.abstain ? "Uncertain" : result.topClass}
+            </span>
             <span className="confidence-badge">{Math.round(result.confidence * 100)}% confidence</span>
             <span className="confidence-badge">Severity: {result.severity}</span>
             <button className="btn btn-secondary badge-action" type="button" onClick={() => downloadPdfReport(result)}>
@@ -70,9 +107,9 @@ export default function PredictionDashboard({ result }) {
 
           <div className="chart-wrap">
             <ResponsiveContainer>
-              <BarChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 10 }}>
+              <BarChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 16 }}>
                 <CartesianGrid stroke="rgba(148,163,184,0.18)" strokeDasharray="3 3" />
-                <XAxis dataKey="label" tick={{ fontSize: 11 }} interval={0} />
+                <XAxis dataKey="label" tick={<AxisTick />} interval={0} height={44} />
                 <YAxis domain={[0, 1]} tick={{ fontSize: 11 }} />
                 <Tooltip formatter={(v) => `${(Number(v) * 100).toFixed(2)}%`} />
                 <Bar dataKey="value" fill="#38bdf8" radius={[6, 6, 0, 0]} minPointSize={2} />
