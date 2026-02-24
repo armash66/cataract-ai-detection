@@ -1,6 +1,7 @@
 import { runFallbackInference } from "./mockInference";
 
 const CLASS_NAMES = ["Cataract", "Glaucoma", "Diabetic Retinopathy", "Normal"];
+const NORMAL_LABEL = "Normal";
 
 async function preprocessImage(file) {
   const bitmap = await createImageBitmap(file);
@@ -30,6 +31,49 @@ function softmax(logits) {
   return exps.map((v) => v / sum);
 }
 
+function applyNormalOverride(probabilities) {
+  const sorted = [...probabilities].sort((a, b) => b.value - a.value);
+  const top = sorted[0];
+  const second = sorted[1] || { value: 0 };
+
+  const normal = probabilities.find((p) => p.label === NORMAL_LABEL);
+  if (!normal) return { probabilities, normalOverride: false };
+
+  const normalConfident = top.label === NORMAL_LABEL && normal.value >= 0.58 && (normal.value - second.value) >= 0.18;
+  if (!normalConfident) return { probabilities, normalOverride: false };
+
+  // Keep some uncertainty, but prevent visually misleading high disease percentages.
+  const nonNormalTotal = 0.15;
+  const normalTotal = 0.85;
+
+  const nonNormal = probabilities.filter((p) => p.label !== NORMAL_LABEL);
+  const nnSum = nonNormal.reduce((acc, p) => acc + p.value, 0) || 1;
+
+  const adjusted = probabilities.map((p) => {
+    if (p.label === NORMAL_LABEL) return { ...p, value: normalTotal };
+    return { ...p, value: (p.value / nnSum) * nonNormalTotal };
+  });
+
+  return { probabilities: adjusted, normalOverride: true };
+}
+
+function buildResultFromProbs(probs, mode, heatmapUrl) {
+  const raw = CLASS_NAMES.map((label, i) => ({ label, value: probs[i] ?? 0 }));
+  const { probabilities: adjusted, normalOverride } = applyNormalOverride(raw);
+  const sorted = [...adjusted].sort((a, b) => b.value - a.value);
+
+  return {
+    probabilities: sorted,
+    topClass: sorted[0].label,
+    confidence: sorted[0].value,
+    severity: sorted[0].value > 0.8 ? "severe" : sorted[0].value > 0.6 ? "moderate" : "mild",
+    heatmapType: "Grad-CAM",
+    heatmapUrl,
+    mode,
+    normalOverride,
+  };
+}
+
 export async function runInference(file, options = {}) {
   if (!file) return null;
 
@@ -50,24 +94,10 @@ export async function runInference(file, options = {}) {
     const logits = Array.from(outputs[outputName].data);
     const probs = softmax(logits);
 
-    const probabilities = CLASS_NAMES.map((label, i) => ({ label, value: probs[i] ?? 0 })).sort(
-      (a, b) => b.value - a.value
-    );
-
-    return {
-      probabilities,
-      topClass: probabilities[0].label,
-      confidence: probabilities[0].value,
-      severity: probabilities[0].value > 0.8 ? "severe" : probabilities[0].value > 0.6 ? "moderate" : "mild",
-      heatmapType: "Grad-CAM",
-      heatmapUrl,
-      mode: "onnxruntime-web",
-    };
+    return buildResultFromProbs(probs, "onnxruntime-web", heatmapUrl);
   } catch (_) {
     const fallback = runFallbackInference(file);
-    return {
-      ...fallback,
-      heatmapUrl,
-    };
+    const probs = CLASS_NAMES.map((c) => fallback.probabilities.find((p) => p.label === c)?.value ?? 0);
+    return buildResultFromProbs(probs, fallback.mode || "mock", heatmapUrl);
   }
 }

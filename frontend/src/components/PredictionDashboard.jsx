@@ -62,6 +62,12 @@ export default function PredictionDashboard({ result }) {
             </button>
           </div>
 
+          {result.normalOverride && (
+            <p className="muted" style={{ marginTop: 0, marginBottom: 8 }}>
+              Normal-eye stabilization applied to reduce misleading disease percentages.
+            </p>
+          )}
+
           <div className="chart-wrap">
             <ResponsiveContainer>
               <BarChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 10 }}>
