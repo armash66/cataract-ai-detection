@@ -1,0 +1,13 @@
+{
+    "name": "eyegpt-ai",
+    "framework": "vite",
+    "buildCommand": "npm install --prefix frontend && npm run build --prefix frontend",
+    "outputDirectory": "frontend/dist",
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/$1"
+        }
+    ],
+    "cleanUrls": true
+}
