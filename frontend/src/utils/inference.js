@@ -1,7 +1,14 @@
 import { runFallbackInference } from "./mockInference";
+import { getModelUrlForModality } from "../config/modality";
 
 const CLASS_NAMES = ["Cataract", "Glaucoma", "Diabetic Retinopathy", "Normal"];
 const NORMAL_LABEL = "Normal";
+
+/** Below this confidence we abstain (no definitive disease output). */
+const ABSTAIN_CONFIDENCE_THRESHOLD = 0.5;
+
+/** If quality score is below this, we may abstain with reason low_quality. */
+const ABSTAIN_QUALITY_THRESHOLD = 60;
 
 async function preprocessImage(file) {
   const bitmap = await createImageBitmap(file);
@@ -57,28 +64,46 @@ function applyNormalOverride(probabilities) {
   return { probabilities: adjusted, normalOverride: true };
 }
 
-function buildResultFromProbs(probs, mode, heatmapUrl) {
+function buildResultFromProbs(probs, mode, heatmapUrl, options = {}) {
   const raw = CLASS_NAMES.map((label, i) => ({ label, value: probs[i] ?? 0 }));
   const { probabilities: adjusted, normalOverride } = applyNormalOverride(raw);
   const sorted = [...adjusted].sort((a, b) => b.value - a.value);
+  const confidence = sorted[0]?.value ?? 0;
+  const qualityScore = options.qualityScore ?? null;
+
+  // Abstention: never force definitive disease output on bad inputs
+  let abstain = false;
+  const abstainReasons = [];
+  if (confidence < ABSTAIN_CONFIDENCE_THRESHOLD) {
+    abstain = true;
+    abstainReasons.push("low_confidence");
+  }
+  if (qualityScore != null && qualityScore < ABSTAIN_QUALITY_THRESHOLD) {
+    abstain = true;
+    abstainReasons.push("low_quality");
+  }
 
   return {
     probabilities: sorted,
-    topClass: sorted[0].label,
-    confidence: sorted[0].value,
-    severity: sorted[0].value > 0.8 ? "severe" : sorted[0].value > 0.6 ? "moderate" : "mild",
+    topClass: sorted[0]?.label ?? null,
+    confidence,
+    severity: confidence > 0.8 ? "severe" : confidence > 0.6 ? "moderate" : "mild",
     heatmapType: "Grad-CAM",
     heatmapUrl,
     mode,
     normalOverride,
+    abstain,
+    abstainReasons: abstainReasons.length ? abstainReasons : null,
   };
 }
 
 export async function runInference(file, options = {}) {
   if (!file) return null;
 
-  const modelUrl = options.modelUrl || "/models/best_accuracy.onnx";
+  const modality = options.modality;
+  const modelUrl = options.modelUrl || (modality ? getModelUrlForModality(modality) : "/models/best_accuracy.onnx");
   const heatmapUrl = options.heatmapUrl || "/heatmaps/latest_gradcam.png";
+  const qualityScore = options.qualityScore ?? null;
 
   try {
     const ort = await import("onnxruntime-web");
@@ -94,10 +119,10 @@ export async function runInference(file, options = {}) {
     const logits = Array.from(outputs[outputName].data);
     const probs = softmax(logits);
 
-    return buildResultFromProbs(probs, "onnxruntime-web", heatmapUrl);
+    return buildResultFromProbs(probs, "onnxruntime-web", heatmapUrl, { qualityScore });
   } catch (_) {
     const fallback = runFallbackInference(file);
     const probs = CLASS_NAMES.map((c) => fallback.probabilities.find((p) => p.label === c)?.value ?? 0);
-    return buildResultFromProbs(probs, fallback.mode || "mock", heatmapUrl);
+    return buildResultFromProbs(probs, fallback.mode || "mock", heatmapUrl, { qualityScore });
   }
 }

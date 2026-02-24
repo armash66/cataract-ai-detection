@@ -8,6 +8,7 @@ import RiskEstimator from "./components/RiskEstimator";
 import ThemeToggle from "./components/ThemeToggle";
 import ImagingPanel from "./components/ImagingPanel";
 import ExplainPanel from "./components/ExplainPanel";
+import ModalitySelector from "./components/ModalitySelector";
 
 import { runInference } from "./utils/inference";
 import { computeRisk } from "./utils/riskEngine";
@@ -48,19 +49,23 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [theme, setTheme] = useState("dark");
   const [patient, setPatient] = useState(initialPatient);
+  const [modality, setModality] = useState("anterior");
 
   const risk = useMemo(() => {
     if (!result) return null;
     return computeRisk(result, patient);
   }, [result, patient]);
 
-  const handleAnalyze = async (file) => {
+  const handleAnalyze = async (file, opts = {}) => {
     setImage(file || null);
     if (!file) {
       setResult(null);
       return;
     }
-    const output = await runInference(file, { modelUrl: "/models/best_accuracy.onnx" });
+    const output = await runInference(file, {
+      modality,
+      qualityScore: opts.qualityScore ?? null,
+    });
     setResult(output);
   };
 
@@ -81,6 +86,7 @@ export default function App() {
       <main className="analysis-main">
         <div className="analysis-grid">
           <div className="left-column">
+            <ModalitySelector value={modality} onChange={setModality} />
             <UploadPanel onAnalyze={handleAnalyze} image={image} />
             <PredictionDashboard result={result} />
             <RiskEstimator patient={patient} onChange={setPatient} risk={risk} />
