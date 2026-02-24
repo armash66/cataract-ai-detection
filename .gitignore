@@ -2,14 +2,20 @@
 dataset/
 **/dataset/
 
-# images
+# images (general)
 *.jpg
 *.jpeg
 *.png
+# Allow images in public/ for deployment
+!frontend/public/**/*.png
+!frontend/public/**/*.jpg
+!frontend/public/**/*.jpeg
 
 # models
 *.pth
 *.pt
+# Allow ONNX models for browser inference
+!*.onnx
 
 # python
 __pycache__/
@@ -18,3 +24,4 @@ __pycache__/
 # frontend
 frontend/node_modules/
 frontend/dist/
+
