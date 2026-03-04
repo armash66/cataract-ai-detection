@@ -10,14 +10,14 @@
 }
 
 .theme-light {
-  --bg: #f1f6ff;
-  --bg-soft: #e4eefc;
+  --bg: #edf3ff;
+  --bg-soft: #dde9fb;
   --surface: #ffffff;
-  --surface-2: #f8fbff;
-  --border: #c7d7f0;
-  --text: #10233f;
-  --muted: #4e6386;
-  --accent: #0b75d8;
+  --surface-2: #f3f8ff;
+  --border: #bed0ee;
+  --text: #0e2242;
+  --muted: #466089;
+  --accent: #0a6dd1;
 }
 
 * {
@@ -28,7 +28,12 @@ body {
   margin: 0;
   font-family: "Manrope", "Segoe UI", sans-serif;
   color: var(--text);
+  min-height: 100vh;
   background: radial-gradient(circle at 15% 10%, rgba(46, 168, 255, 0.18), transparent 35%), linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
+}
+
+body.theme-light {
+  background: radial-gradient(circle at 15% 10%, rgba(34, 111, 210, 0.14), transparent 36%), linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
 }
 
 .btn {
@@ -182,6 +187,70 @@ body {
 .analysis-actions {
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.12s ease;
+}
+
+.theme-toggle:hover {
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+}
+
+.theme-toggle:active {
+  transform: scale(0.98);
+}
+
+.theme-toggle-track {
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 65%, var(--bg));
+  position: relative;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffd86f 0%, #ffb93e 100%);
+  color: #5d3f00;
+  display: grid;
+  place-items: center;
+  transition: left 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.theme-toggle-thumb.is-light {
+  left: 17px;
+  background: linear-gradient(180deg, #164a90 0%, #0f3369 100%);
+  color: #dceeff;
+}
+
+.theme-toggle-text {
+  min-width: 44px;
+  text-align: left;
+}
+
+.theme-light .theme-toggle {
+  background: #eef4ff;
 }
 
 .analysis-main {

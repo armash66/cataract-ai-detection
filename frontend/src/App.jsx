@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Camera, Eye, Sparkles } from "lucide-react";
 
@@ -51,6 +51,11 @@ export default function App() {
   const [theme, setTheme] = useState("dark");
   const [patient, setPatient] = useState(initialPatient);
   const [modality, setModality] = useState("anterior");
+
+  useEffect(() => {
+    document.body.classList.toggle("theme-light", theme === "light");
+    return () => document.body.classList.remove("theme-light");
+  }, [theme]);
 
   const risk = useMemo(() => {
     if (!result) return null;
